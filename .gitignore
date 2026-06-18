@@ -1,0 +1,5 @@
+# Local agent/editor config — never published
+**/.claude/settings.local.json
+
+# Ephemeral build output (the index is a pure function of the source tree)
+_site/

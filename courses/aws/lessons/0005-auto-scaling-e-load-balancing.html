@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lição 05 — Auto Scaling e Load Balancing</title>
+<style>
+  :root{
+    --bg:#0f1720; --card:#ffffff; --ink:#1a2230; --muted:#5b6675;
+    --accent:#ff9900; --accent-deep:#ec7211; --aws:#232f3e;
+    --green:#1f9d55; --green-bg:#e7f6ee; --red:#c5374a; --red-bg:#fdecee;
+    --line:#e7ebf0; --soft:#f6f8fa; --blue:#2f6fb0; --blue-bg:#e9f2fb;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; background:linear-gradient(180deg,#10202e,#16344a);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.6; padding:32px 16px;}
+  .wrap{max-width:760px; margin:0 auto;}
+  .card{background:var(--card); border-radius:16px; padding:40px 44px; box-shadow:0 18px 50px rgba(0,0,0,.35); margin-bottom:24px;}
+  .kicker{display:inline-flex; align-items:center; gap:8px; background:var(--aws); color:#fff; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:6px 12px; border-radius:999px;}
+  .kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  h1{font-size:30px; line-height:1.25; margin:18px 0 6px; color:var(--aws);}
+  h2{font-size:21px; margin:34px 0 10px; color:var(--aws); border-left:4px solid var(--accent); padding-left:12px;}
+  h3{font-size:16px; margin:22px 0 6px; color:var(--aws);}
+  p{margin:12px 0;}
+  .lead{font-size:17px; color:var(--muted);}
+  .mission{background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:16px 18px; font-size:14.5px; margin:20px 0;}
+  .mission strong{color:var(--accent-deep);}
+  .callout{background:var(--green-bg); border-left:4px solid var(--green); border-radius:8px; padding:14px 16px; font-size:14.5px; margin:18px 0;}
+  .callout.warn{background:#fff8e6; border-left-color:var(--accent);}
+  .callout.info{background:var(--blue-bg); border-left-color:var(--blue);}
+  sup a{color:var(--accent-deep); text-decoration:none; font-weight:700;}
+  a.ref{color:var(--accent-deep); text-decoration:none; border-bottom:1px dotted var(--accent-deep); font-size:.92em;}
+  code{background:var(--soft); border:1px solid var(--line); border-radius:5px; padding:1px 6px; font-size:.9em;}
+
+  table{width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px;}
+  th,td{border:1px solid var(--line); padding:10px 12px; text-align:left; vertical-align:top;}
+  th{background:var(--aws); color:#fff; font-size:13px;}
+  tr:nth-child(even) td{background:var(--soft);}
+
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;}
+  .chip{background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:13px;}
+  .chip b{color:var(--aws);}
+
+  /* architecture diagram */
+  .arch{border:2px dashed #b9c4d0; border-radius:14px; padding:18px; margin:18px 0; background:#fbfcfe; text-align:center;}
+  .arch .users{font-size:13px; color:var(--muted); margin-bottom:6px;}
+  .arch .elb{display:inline-block; background:var(--aws); color:#fff; font-weight:700; font-size:13px; padding:10px 18px; border-radius:10px; margin:6px 0;}
+  .arch .arrows{color:#b9c4d0; font-size:18px; letter-spacing:18px; margin:2px 0;}
+  .arch .row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:6px;}
+  .arch .inst{background:#fff; border:1.5px solid var(--accent); border-radius:10px; padding:10px; font-size:12.5px; color:var(--accent-deep); font-weight:700;}
+  .arch .inst span{display:block; font-weight:400; color:var(--muted); font-size:11px; margin-top:3px;}
+  .arch .asg{margin-top:10px; font-size:12px; color:var(--muted); border-top:1px dashed #cdd8e3; padding-top:8px;}
+
+  /* Quiz */
+  .quiz{background:var(--soft); border:1px solid var(--line); border-radius:14px; padding:24px 26px; margin-top:14px;}
+  .qnum{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-deep);}
+  .qtext{font-weight:600; font-size:16px; margin:6px 0 14px; color:var(--aws);}
+  .opt{display:block; width:100%; text-align:left; background:#fff; border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; margin:8px 0; font-size:14.5px; cursor:pointer; transition:.15s; font-family:inherit; color:var(--ink);}
+  .opt:hover{border-color:var(--accent); background:#fffaf3;}
+  .opt.correct{border-color:var(--green); background:var(--green-bg);}
+  .opt.wrong{border-color:var(--red); background:var(--red-bg);}
+  .opt:disabled{cursor:default;}
+  .fb{display:none; margin-top:12px; padding:12px 14px; border-radius:10px; font-size:14px;}
+  .fb.show{display:block;}
+  .fb.ok{background:var(--green-bg); color:#155f37;}
+  .fb.no{background:var(--red-bg); color:#8a1f2c;}
+  .score{margin-top:18px; font-weight:700; color:var(--aws); display:none;}
+  .score.show{display:block;}
+
+  .ask{background:var(--aws); color:#fff; border-radius:14px; padding:22px 26px; margin-bottom:24px;}
+  .ask h3{color:#fff; margin-top:0;}
+  .ask code{background:rgba(255,255,255,.12); border:none; color:#fff; padding:2px 7px; border-radius:6px; font-size:13px;}
+  .ask p{color:#cdd8e3; font-size:14.5px;}
+  .nav{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}
+  .nav a{flex:1; min-width:200px; text-decoration:none; color:var(--aws); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:14px; background:#fff;}
+  .nav a:hover{border-color:var(--accent); background:#fffaf3;}
+  .nav small{display:block; color:var(--muted); font-weight:400;}
+  .nav b{color:var(--accent-deep);}
+  .footer{color:#9fb0c0; font-size:13px; text-align:center; padding:8px 0 0;}
+  @media print{ body{background:#fff; padding:0;} .card{box-shadow:none;} .ask{background:#fff; color:#000; border:1px solid #ccc;} }
+  @media (max-width:560px){ .arch .row{grid-template-columns:1fr;} .card{padding:28px 22px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <span class="kicker"><span class="dot"></span> CLF-C02 · Lição 05 · Domínio 3: Cloud Technology &amp; Services (34%)</span>
+    <h1>Auto Scaling e Load Balancing: a elasticidade na prática</h1>
+    <p class="lead">Você já sabe criar uma instância EC2 (Lição 04). Mas <em>uma</em> instância tem
+    dois problemas fatais: ela pode ser <b>sobrecarregada</b> e ela é um <b>ponto único de falha</b>.
+    Esta dupla — <b>Auto Scaling</b> + <b>Elastic Load Balancing</b> — resolve os dois e forma a
+    arquitetura web mais clássica da AWS.</p>
+
+    <div class="mission">
+      🎯 <strong>Por que esta lição?</strong> Este é <em>o</em> diagrama que você vai reconhecer em
+      90% das arquiteturas AWS. E ele materializa duas coisas que você já citou: a <b>elasticidade</b>
+      (pagar só pelo que usa) e a vantagem <b>"parar de adivinhar capacidade"</b>. Saber explicá-lo é
+      falar a língua de custo <em>e</em> de disponibilidade numa reunião.
+      <span style="display:block;margin-top:8px;color:var(--muted)">⏱️ ~8 min · quiz de 5 questões. Pré-requisitos: <a class="ref" href="0004-amazon-ec2-e-modelos-de-compra.html">Lição 04 (EC2)</a> e <a class="ref" href="0003-regioes-azs-e-edge-locations.html">Lição 03 (AZs)</a>.</span>
+    </div>
+
+    <h2>O problema de uma instância só</h2>
+    <p>Imagine a API de produção da Caravela numa única instância EC2. Na Black Friday o tráfego
+    triplica e a máquina não dá conta (sem escala). Pior: se a AZ daquela instância cair, o sistema
+    inteiro sai do ar (ponto único de falha). Precisamos de <b>várias instâncias, em várias AZs</b> —
+    e de algo que distribua o tráfego entre elas e ajuste a quantidade sozinho.</p>
+
+    <h2>As duas peças</h2>
+    <table>
+      <tr><th>Serviço</th><th>O que faz</th><th>Qual problema resolve</th></tr>
+      <tr>
+        <td><b>Elastic Load Balancing<br>(ELB)</b></td>
+        <td>Recebe o tráfego de entrada e o <b>distribui</b> entre várias instâncias, em uma ou mais AZs. Faz <b>health checks</b> e só envia tráfego para instâncias saudáveis.</td>
+        <td><b>Disponibilidade / tolerância a falha:</b> se uma instância (ou AZ) cai, o ELB para de mandar tráfego para ela e usa as outras.</td>
+      </tr>
+      <tr>
+        <td><b>EC2 Auto Scaling<br>(ASG)</b></td>
+        <td>Ajusta <b>automaticamente o número de instâncias</b> conforme a demanda: <em>scale out</em> (adiciona) na alta, <em>scale in</em> (remove) na baixa.</td>
+        <td><b>Elasticidade / custo:</b> capacidade acompanha a demanda em tempo real — sem adivinhar, sem pagar por máquina parada.</td>
+      </tr>
+    </table>
+
+    <h2>Como elas trabalham juntas</h2>
+    <div class="arch">
+      <div class="users">🌐 usuários</div>
+      <div class="arrows">↓</div>
+      <div class="elb">Elastic Load Balancing</div>
+      <div class="arrows">↙ ↓ ↘</div>
+      <div class="row">
+        <div class="inst">EC2<span>AZ-a</span></div>
+        <div class="inst">EC2<span>AZ-b</span></div>
+        <div class="inst">EC2<span>AZ-c</span></div>
+      </div>
+      <div class="asg">⤴ <b>Auto Scaling</b> adiciona/remove instâncias conforme a demanda (mín · desejado · máx)</div>
+    </div>
+    <p>Pense assim: o <b>Auto Scaling decide <em>quantas</em> instâncias existem</b>; o
+    <b>ELB decide <em>para qual</em> instância cada requisição vai</b>. Juntos entregam um sistema que
+    <b>cresce e encolhe sozinho</b> e <b>sobrevive à queda de uma AZ</b> (lembra de multi-AZ da
+    Lição 03?).<sup><a href="#r1">1</a></sup></p>
+
+    <div class="callout warn">
+      <b>Distinção que cai muito — horizontal vs vertical:</b> Auto Scaling faz <b>escala horizontal</b>
+      (mais/menos instâncias). Ele <u>não</u> troca a instância por uma maior — isso seria escala
+      <b>vertical</b>, e é uma mudança manual de tipo. Se a questão diz "ajustar automaticamente a
+      <em>quantidade</em> de servidores conforme a demanda" → Auto Scaling.
+    </div>
+
+    <h3>Tipos de Load Balancer (só reconhecer)</h3>
+    <div class="chips">
+      <div class="chip">🌐 <b>ALB</b> (Application) — camada 7, tráfego <b>HTTP/HTTPS</b>, roteamento por conteúdo. O mais comum para web.</div>
+      <div class="chip">⚡ <b>NLB</b> (Network) — camada 4, <b>TCP/UDP</b>, performance e latência extremas.</div>
+      <div class="chip">🛡️ <b>GWLB</b> (Gateway) — appliances de rede (firewalls).</div>
+    </div>
+    <p style="font-size:13.5px;color:var(--muted)">Para a prova basta: <b>ALB = web/HTTP</b>; <b>NLB = altíssima performance/TCP</b>.<sup><a href="#r2">2</a></sup></p>
+
+    <div class="callout info">
+      🧠 <b>Conexão com as 6 vantagens:</b> esta dupla é a encarnação técnica de
+      <b>"parar de adivinhar capacidade"</b> (vantagem #3). Você não dimensiona para o pico e reza —
+      a infra acompanha a demanda. (E sim, isso ainda está na sua fila de revisão. 😉)
+    </div>
+
+    <h2>Conectando à sua missão</h2>
+    <p>Quando um cliente perguntar <em>"e se o sistema bombar de repente?"</em> ou <em>"e se um data
+    center cair?"</em>, a resposta defensável é uma só arquitetura: <b>Auto Scaling Group de
+    instâncias EC2 distribuídas em múltiplas AZs, atrás de um Application Load Balancer</b>. Custo
+    controlado (escala in à noite), disponibilidade garantida (multi-AZ + health checks). Essa frase
+    é exatamente a autoridade técnica que a sua missão busca.</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="card">
+    <h2 style="margin-top:0">✅ Teste rápido — feedback na hora</h2>
+    <p class="lead" style="font-size:15px">5 cenários estilo exame. Clique e veja a correção na hora.</p>
+
+    <div class="quiz" data-correct="c" data-exp="Ajustar automaticamente o NÚMERO de instâncias conforme a demanda é o papel do EC2 Auto Scaling (escala horizontal).">
+      <div class="qnum">Questão 1 de 5</div>
+      <div class="qtext">Uma aplicação tem picos imprevisíveis de tráfego. Você quer que o número de instâncias EC2 aumente e diminua sozinho conforme a demanda. Qual serviço usar?</div>
+      <button class="opt" data-k="a">Elastic Load Balancing</button>
+      <button class="opt" data-k="b">Amazon CloudFront</button>
+      <button class="opt" data-k="c">EC2 Auto Scaling</button>
+      <button class="opt" data-k="d">Reserved Instances</button>
+      <div class="fb"></div>
+    </div>
+
+    <div class="quiz" data-correct="b" data-exp="O Elastic Load Balancing distribui o tráfego entre várias instâncias e, via health checks, para de enviar requisições para as que estão doentes — melhorando a disponibilidade.">
+      <div class="qnum">Questão 2 de 5</div>
+      <div class="qtext">Qual é a função principal do Elastic Load Balancing?</div>
+      <button class="opt" data-k="a">Reduzir o custo das instâncias com desconto de longo prazo</button>
+      <button class="opt" data-k="b">Distribuir o tráfego de entrada entre múltiplas instâncias saudáveis</button>
+      <button class="opt" data-k="c">Armazenar arquivos estáticos perto do usuário</button>
+      <button class="opt" data-k="d">Criar imagens (AMI) das instâncias automaticamente</button>
+      <div class="fb"></div>
+    </div>
+
+    <div class="quiz" data-correct="d" data-exp="Distribuir as instâncias em múltiplas AZs atrás de um load balancer faz o sistema sobreviver à queda de uma AZ inteira — alta disponibilidade.">
+      <div class="qnum">Questão 3 de 5</div>
+      <div class="qtext">Você quer que a aplicação continue no ar mesmo se uma Zona de Disponibilidade inteira falhar. Qual desenho atende?</div>
+      <button class="opt" data-k="a">Uma instância EC2 maior (escala vertical)</button>
+      <button class="opt" data-k="b">Várias instâncias na mesma AZ atrás de um ELB</button>
+      <button class="opt" data-k="c">Spot Instances numa única AZ</button>
+      <button class="opt" data-k="d">Instâncias em múltiplas AZs atrás de um Elastic Load Balancer</button>
+      <div class="fb"></div>
+    </div>
+
+    <div class="quiz" data-correct="a" data-exp="Auto Scaling faz escala HORIZONTAL: adiciona/remove instâncias. Trocar por uma máquina maior é escala vertical, que não é o que o Auto Scaling faz.">
+      <div class="qnum">Questão 4 de 5</div>
+      <div class="qtext">Qual afirmação descreve corretamente o EC2 Auto Scaling?</div>
+      <button class="opt" data-k="a">Faz escala horizontal — adiciona ou remove instâncias conforme a demanda</button>
+      <button class="opt" data-k="b">Aumenta a CPU e a RAM de uma única instância automaticamente</button>
+      <button class="opt" data-k="c">Distribui o tráfego entre instâncias existentes</button>
+      <button class="opt" data-k="d">Garante desconto de até 72% em troca de compromisso</button>
+      <div class="fb"></div>
+    </div>
+
+    <div class="quiz" data-correct="b" data-exp="Para tráfego web HTTP/HTTPS com roteamento por conteúdo, o Application Load Balancer (ALB, camada 7) é a escolha padrão.">
+      <div class="qnum">Questão 5 de 5</div>
+      <div class="qtext">Para balancear tráfego web HTTP/HTTPS com roteamento baseado no caminho da URL, qual tipo de load balancer é o mais indicado?</div>
+      <button class="opt" data-k="a">Network Load Balancer (NLB)</button>
+      <button class="opt" data-k="b">Application Load Balancer (ALB)</button>
+      <button class="opt" data-k="c">Gateway Load Balancer (GWLB)</button>
+      <button class="opt" data-k="d">Nenhum — load balancers não tratam HTTP</button>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score"></div>
+  </div>
+
+  <!-- ASK -->
+  <div class="ask">
+    <h3>👩‍🏫 Dúvida? Sou seu professor.</h3>
+    <p>Volte ao chat e pergunte. Ex.: <code>"O que é um launch template?"</code>,
+    <code>"Como o Auto Scaling decide quando escalar (target tracking)?"</code> ou
+    <code>"ALB vs NLB num caso real?"</code>.
+    Depois do quiz, me conta o resultado — e ainda estou esperando dois itens rápidos:
+    o <b>mnemônico das 6 vantagens</b> (revisão vencida) e o <b>cheat sheet dos 5 modelos de compra</b>.
+    A <b>Lição 06</b> segue no Domínio 3 com <b>armazenamento: Amazon S3</b>.</p>
+  </div>
+
+  <!-- NAV -->
+  <div class="card">
+    <h2 style="margin-top:0">🔗 Continue</h2>
+    <div class="nav">
+      <a href="0004-amazon-ec2-e-modelos-de-compra.html"><b>⬅️ Lição 04</b><small>EC2 · modelos de compra</small></a>
+      <a href="../reference/GLOSSARY.md"><b>📖 Glossário</b><small>ELB · Auto Scaling · ALB/NLB</small></a>
+    </div>
+    <h3 style="margin-top:26px">Fontes</h3>
+    <p id="r1" style="font-size:13px;color:var(--muted)"><sup>1</sup> AWS — <a class="ref" href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html">EC2 Auto Scaling</a> · <a class="ref" href="https://aws.amazon.com/elasticloadbalancing/">Elastic Load Balancing</a></p>
+    <p id="r2" style="font-size:13px;color:var(--muted)"><sup>2</sup> AWS — <a class="ref" href="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html">Tipos de Load Balancer</a> · <a class="ref" href="https://docs.aws.amazon.com/aws-certification/latest/examguides/cloud-practitioner-02.html">Exam Guide CLF-C02</a></p>
+  </div>
+
+  <div class="footer">Lição 05 · AWS Certified Cloud Practitioner (CLF-C02) · Domínio 3 em andamento 🚀</div>
+</div>
+
+<script>
+(function(){
+  var quizzes = document.querySelectorAll('.quiz');
+  var total = quizzes.length, answered = 0, correct = 0;
+  var scoreEl = document.querySelector('.score');
+  quizzes.forEach(function(q){
+    var answer = q.getAttribute('data-correct');
+    var exp = q.getAttribute('data-exp') || '';
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if(q.dataset.done) return;
+        q.dataset.done="1"; answered++;
+        var k = btn.getAttribute('data-k');
+        opts.forEach(function(b){ b.disabled = true; });
+        q.querySelector('.opt[data-k="'+answer+'"]').classList.add('correct');
+        if(k===answer){ correct++; fb.className='fb ok show'; fb.innerHTML='✔️ <b>Correto!</b> '+exp; }
+        else{ btn.classList.add('wrong'); fb.className='fb no show'; fb.innerHTML='✗ <b>Quase.</b> '+exp; }
+        if(answered===total){
+          var msg = correct===total ? '🏆 Gabaritou! A arquitetura web elástica é sua.' :
+                    correct>=total-1 ? '💪 Muito bom. Reveja só o ponto que escapou.' :
+                    '📚 Releia a tabela das duas peças e o quadro horizontal vs vertical, e me peça mais cenários.';
+          scoreEl.textContent='Resultado: '+correct+'/'+total+' — '+msg;
+          scoreEl.classList.add('show');
+          scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
