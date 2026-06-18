@@ -41,6 +41,11 @@ function build() {
   }
 
   fs.writeFileSync(path.join(OUT_DIR, "index.html"), renderHub(model), "utf8");
+  fs.writeFileSync(
+    path.join(OUT_DIR, "manifest.webmanifest"),
+    renderManifest(),
+    "utf8"
+  );
 
   const lessonTotal = model.courses.reduce((n, c) => n + c.lessonCount, 0);
   console.log(
@@ -81,6 +86,7 @@ function renderCoursePage(course) {
 
   return layout({
     title: course.title,
+    base: "../../",
     header: `      <a class="back" href="../../">← Learnings</a>
       <h1>${escapeHtml(course.title)}</h1>`,
     main: `      <ol class="list card">
@@ -89,16 +95,45 @@ ${lessons}
   });
 }
 
+// The PWA manifest, served at the site root. Paths are relative so the app
+// installs correctly under the GitHub Pages subpath (`/<repo>/`). The icons
+// are PNGs rasterized from `icon.svg` during the CI build.
+function renderManifest() {
+  return JSON.stringify(
+    {
+      name: "Learnings",
+      short_name: "Learnings",
+      start_url: ".",
+      scope: ".",
+      display: "standalone",
+      background_color: "#10202e",
+      theme_color: "#10202e",
+      icons: [
+        { src: "icon-192.png", sizes: "192x192", type: "image/png" },
+        { src: "icon-512.png", sizes: "512x512", type: "image/png" },
+      ],
+    },
+    null,
+    2
+  );
+}
+
 // Shared page shell for the generated index pages. Inherits the lessons'
 // visual identity (navy gradient, AWS orange, white cards, system fonts) and
 // is mobile-first: single column, ≥44px touch targets, scaling up on desktop.
-function layout({ title, header, main }) {
+function layout({ title, header, main, base = "" }) {
   return `<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(title)}</title>
+    <link rel="manifest" href="${base}manifest.webmanifest" />
+    <meta name="theme-color" content="#10202e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Learnings" />
+    <link rel="apple-touch-icon" href="${base}apple-touch-icon.png" />
     <style>${STYLE}</style>
   </head>
   <body>
@@ -170,4 +205,4 @@ function escapeHtml(text) {
 
 if (require.main === module) build();
 
-module.exports = { build, renderHub, renderCoursePage };
+module.exports = { build, renderHub, renderCoursePage, renderManifest };

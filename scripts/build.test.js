@@ -3,7 +3,7 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { renderCoursePage, renderHub } = require("./build.js");
+const { renderCoursePage, renderHub, renderManifest } = require("./build.js");
 
 // A plain model course, the shape buildSiteModel produces. Render functions
 // take data, never the filesystem, so these tests need no temp dirs.
@@ -47,6 +47,20 @@ test("course page has a back link to the hub", () => {
   assert.match(html, /href="\.\.\/\.\.\/"/);
 });
 
+test("course page resolves the manifest and apple-touch-icon two levels up", () => {
+  const html = renderCoursePage(aCourse());
+
+  assert.match(html, /<link[^>]+rel="manifest"[^>]+href="\.\.\/\.\.\/manifest\.webmanifest"/);
+  assert.match(
+    html,
+    /<link[^>]+rel="apple-touch-icon"[^>]+href="\.\.\/\.\.\/apple-touch-icon\.png"/
+  );
+  assert.match(
+    html,
+    /<meta[^>]+name="apple-mobile-web-app-title"[^>]+content="Learnings"/
+  );
+});
+
 function aModel() {
   return {
     courses: [
@@ -74,4 +88,36 @@ test("hub no longer lists individual lessons inline", () => {
   const html = renderHub(aModel());
 
   assert.doesNotMatch(html, /lessons\//);
+});
+
+test("hub head links the manifest and Apple PWA meta from the site root", () => {
+  const html = renderHub(aModel());
+
+  assert.match(html, /<link[^>]+rel="manifest"[^>]+href="manifest\.webmanifest"/);
+  assert.match(html, /<meta[^>]+name="theme-color"[^>]+content="#[0-9a-fA-F]{6}"/);
+  assert.match(html, /<meta[^>]+name="apple-mobile-web-app-capable"[^>]+content="yes"/);
+  assert.match(html, /<meta[^>]+name="apple-mobile-web-app-status-bar-style"/);
+  assert.match(
+    html,
+    /<meta[^>]+name="apple-mobile-web-app-title"[^>]+content="Learnings"/
+  );
+  assert.match(html, /<link[^>]+rel="apple-touch-icon"[^>]+href="apple-touch-icon\.png"/);
+});
+
+test("the web manifest declares an installable standalone app named Learnings", () => {
+  const manifest = JSON.parse(renderManifest());
+
+  assert.equal(manifest.name, "Learnings");
+  assert.equal(manifest.short_name, "Learnings");
+  assert.equal(manifest.display, "standalone");
+  assert.match(manifest.theme_color, /^#[0-9a-fA-F]{6}$/);
+
+  const sizes = manifest.icons.map((icon) => icon.sizes);
+  assert.ok(sizes.includes("192x192"), "should ship a 192px icon");
+  assert.ok(sizes.includes("512x512"), "should ship a 512px icon");
+  for (const icon of manifest.icons) {
+    assert.equal(icon.type, "image/png");
+    // Relative src so the manifest works under the GitHub Pages subpath.
+    assert.doesNotMatch(icon.src, /^\//);
+  }
 });

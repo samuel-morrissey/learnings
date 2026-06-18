@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Learnings PWA icon — orange graduation cap (capelo) on navy.
+  Single editable source; the CI build rasterizes this to the PNG sizes
+  iOS and the manifest need. Palette matches the lessons/hub identity.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Learnings">
+  <rect width="512" height="512" rx="104" fill="#10202e"/>
+
+  <!-- skull cap / band (sits under the board) -->
+  <path d="M164 246 L172 300 Q256 344 340 300 L348 246 Z" fill="#ec7211"/>
+
+  <!-- mortarboard (the flat square seen in perspective) -->
+  <path d="M256 152 L448 232 L256 312 L64 232 Z" fill="#ff9900"/>
+
+  <!-- centre button -->
+  <circle cx="256" cy="232" r="15" fill="#ec7211"/>
+
+  <!-- tassel cord + knob -->
+  <path d="M256 232 Q 414 250 414 290 L414 356"
+        fill="none" stroke="#ffb84d" stroke-width="9" stroke-linecap="round"/>
+  <path d="M414 356 l-12 40 M414 356 l0 44 M414 356 l12 40"
+        fill="none" stroke="#ffb84d" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="414" cy="352" r="13" fill="#ffb84d"/>
+</svg>
