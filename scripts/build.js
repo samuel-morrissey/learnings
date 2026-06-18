@@ -52,66 +52,113 @@ function renderHub(model) {
   const courses = model.courses
     .map(
       (course) =>
-        `        <li><a href="courses/${course.name}/">${escapeHtml(
+        `          <li><a href="courses/${course.name}/"><span class="title">${escapeHtml(
           course.title
-        )} · ${course.lessonCount} ${
+        )}</span><span class="meta">· ${course.lessonCount} ${
           course.lessonCount === 1 ? "aula" : "aulas"
-        }</a></li>`
+        }</span></a></li>`
     )
     .join("\n");
 
-  return `<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Learnings</title>
-  </head>
-  <body>
-    <header>
-      <h1>Learnings</h1>
-    </header>
-    <main>
-      <ul>
+  return layout({
+    title: "Learnings",
+    header: `      <h1>Learnings</h1>`,
+    main: `      <ul class="list card">
 ${courses}
-      </ul>
-    </main>
-  </body>
-</html>
-`;
+      </ul>`,
+  });
 }
 
 function renderCoursePage(course) {
   const lessons = course.lessons
     .map(
       (lesson) =>
-        `        <li><a href="lessons/${lesson.file}">${escapeHtml(
+        `          <li><a href="lessons/${lesson.file}">${escapeHtml(
           lesson.title
         )}</a></li>`
     )
     .join("\n");
 
+  return layout({
+    title: course.title,
+    header: `      <a class="back" href="../../">← Learnings</a>
+      <h1>${escapeHtml(course.title)}</h1>`,
+    main: `      <ol class="list card">
+${lessons}
+      </ol>`,
+  });
+}
+
+// Shared page shell for the generated index pages. Inherits the lessons'
+// visual identity (navy gradient, AWS orange, white cards, system fonts) and
+// is mobile-first: single column, ≥44px touch targets, scaling up on desktop.
+function layout({ title, header, main }) {
   return `<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(course.title)}</title>
+    <title>${escapeHtml(title)}</title>
+    <style>${STYLE}</style>
   </head>
   <body>
-    <header>
-      <a href="../../">← Learnings</a>
-      <h1>${escapeHtml(course.title)}</h1>
-    </header>
-    <main>
-      <ol>
-${lessons}
-      </ol>
-    </main>
+    <div class="wrap">
+      <header>
+${header}
+      </header>
+      <main>
+${main}
+      </main>
+    </div>
   </body>
 </html>
 `;
 }
+
+// Visual tokens lifted from the lessons so the hub/course pages feel like one
+// product. Self-contained (no external asset), matching the lessons' approach.
+const STYLE = `
+    :root{
+      --bg1:#10202e; --bg2:#16344a; --card:#ffffff; --ink:#1a2230;
+      --muted:#5b6675; --accent:#ff9900; --accent-deep:#ec7211; --aws:#232f3e;
+      --line:#e7ebf0;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2)) fixed;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      color:var(--ink); line-height:1.6; padding:32px 16px;
+    }
+    .wrap{max-width:760px; margin:0 auto;}
+    header{margin-bottom:20px;}
+    .back{display:inline-flex; align-items:center; min-height:44px;
+      color:#cfe0ee; text-decoration:none; font-weight:600; font-size:15px;}
+    .back:hover{color:#fff;}
+    h1{margin:4px 0 0; color:#fff; font-size:28px; line-height:1.25;}
+    .list{list-style:none; margin:0; padding:8px 0;}
+    .card{background:var(--card); border-radius:16px;
+      box-shadow:0 18px 50px rgba(0,0,0,.35);}
+    .list li{padding:0 8px;}
+    .list li + li{border-top:1px solid var(--line);}
+    .list a{display:flex; align-items:center; gap:12px; min-height:44px;
+      padding:10px 8px; color:var(--aws); text-decoration:none;
+      font-size:16px; font-weight:600;}
+    .list a:hover{color:var(--accent-deep);}
+    .list .meta{color:var(--muted); font-weight:600; font-size:13px;}
+    ol.list{counter-reset:item;}
+    ol.list a{counter-increment:item;}
+    ol.list a::before{
+      content:counter(item); flex:none;
+      width:30px; height:30px; border-radius:8px;
+      background:var(--accent); color:#fff; font-weight:800; font-size:14px;
+      display:flex; align-items:center; justify-content:center;}
+    @media (min-width:600px){
+      body{padding:48px 24px;}
+      h1{font-size:34px;}
+      .list{padding:12px 12px;}
+      .list a{font-size:17px;}
+    }`;
 
 function escapeHtml(text) {
   return String(text)

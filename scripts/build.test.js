@@ -37,7 +37,7 @@ test("course page shows the course title and links each lesson in order", () => 
 test("course page renders the lessons as a numbered list", () => {
   const html = renderCoursePage(aCourse());
 
-  assert.match(html, /<ol>[\s\S]*<\/ol>/);
+  assert.match(html, /<ol[^>]*>[\s\S]*<\/ol>/);
 });
 
 test("course page has a back link to the hub", () => {
