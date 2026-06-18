@@ -24,7 +24,8 @@ function build() {
 
   for (const course of model.courses) {
     const srcLessons = path.join(COURSES_DIR, course.name, "lessons");
-    const dstLessons = path.join(OUT_DIR, "courses", course.name, "lessons");
+    const courseDir = path.join(OUT_DIR, "courses", course.name);
+    const dstLessons = path.join(courseDir, "lessons");
     fs.mkdirSync(dstLessons, { recursive: true });
     for (const lesson of course.lessons) {
       fs.copyFileSync(
@@ -32,6 +33,11 @@ function build() {
         path.join(dstLessons, lesson.file)
       );
     }
+    fs.writeFileSync(
+      path.join(courseDir, "index.html"),
+      renderCoursePage(course),
+      "utf8"
+    );
   }
 
   fs.writeFileSync(path.join(OUT_DIR, "index.html"), renderHub(model), "utf8");
@@ -44,24 +50,14 @@ function build() {
 
 function renderHub(model) {
   const courses = model.courses
-    .map((course) => {
-      const lessons = course.lessons
-        .map(
-          (lesson) =>
-            `        <li><a href="courses/${course.name}/lessons/${lesson.file}">${escapeHtml(
-              lesson.title
-            )}</a></li>`
-        )
-        .join("\n");
-      return `      <section>
-        <h2>${escapeHtml(course.title)} · ${course.lessonCount} ${
-        course.lessonCount === 1 ? "aula" : "aulas"
-      }</h2>
-        <ul>
-${lessons}
-        </ul>
-      </section>`;
-    })
+    .map(
+      (course) =>
+        `        <li><a href="courses/${course.name}/">${escapeHtml(
+          course.title
+        )} · ${course.lessonCount} ${
+          course.lessonCount === 1 ? "aula" : "aulas"
+        }</a></li>`
+    )
     .join("\n");
 
   return `<!doctype html>
@@ -76,7 +72,41 @@ ${lessons}
       <h1>Learnings</h1>
     </header>
     <main>
+      <ul>
 ${courses}
+      </ul>
+    </main>
+  </body>
+</html>
+`;
+}
+
+function renderCoursePage(course) {
+  const lessons = course.lessons
+    .map(
+      (lesson) =>
+        `        <li><a href="lessons/${lesson.file}">${escapeHtml(
+          lesson.title
+        )}</a></li>`
+    )
+    .join("\n");
+
+  return `<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(course.title)}</title>
+  </head>
+  <body>
+    <header>
+      <a href="../../">← Learnings</a>
+      <h1>${escapeHtml(course.title)}</h1>
+    </header>
+    <main>
+      <ol>
+${lessons}
+      </ol>
     </main>
   </body>
 </html>
@@ -93,4 +123,4 @@ function escapeHtml(text) {
 
 if (require.main === module) build();
 
-module.exports = { build, renderHub };
+module.exports = { build, renderHub, renderCoursePage };
