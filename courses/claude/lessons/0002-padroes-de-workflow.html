@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lição 02 — Os 5 padrões de workflow</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --muted:#5d5d66; --line:#e6e3dc; --bg:#faf8f4;
+    --accent:#c8643c; --accent-soft:#f6e6dd; --good:#2e7d4f; --good-soft:#e3f3e9;
+    --bad:#b5402e; --bad-soft:#f8e3df; --card:#ffffff; --code:#33312c; --blue:#3f6f8f;
+  }
+  *{box-sizing:border-box}
+  html{font-size:17px}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:56px 28px 96px}
+  .kicker{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:2.1rem;line-height:1.15;margin:.35em 0 .2em;letter-spacing:-.02em}
+  h2{font-size:1.3rem;margin:2.4em 0 .5em;letter-spacing:-.01em;padding-bottom:.25em;border-bottom:2px solid var(--line)}
+  h3{font-size:1.08rem;margin:1.4em 0 .3em}
+  p{margin:.7em 0}
+  .lede{font-size:1.12rem;color:var(--muted)}
+  .mission{background:var(--accent-soft);border-left:4px solid var(--accent);
+    padding:14px 18px;border-radius:0 8px 8px 0;font-size:.95rem;margin:1.4em 0}
+  .mission b{color:var(--accent)}
+  .recap{font-size:.9rem;color:var(--muted);background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:12px 16px;margin:1.2em 0}
+  blockquote{margin:1em 0;padding:12px 18px;background:var(--card);border:1px solid var(--line);
+    border-left:4px solid var(--muted);border-radius:0 8px 8px 0;color:var(--code);font-size:.96rem}
+  blockquote cite{display:block;margin-top:.4em;font-size:.8rem;color:var(--muted);font-style:normal}
+  code{background:#f0ede6;padding:.1em .35em;border-radius:4px;font-size:.88em;font-family:"SF Mono",Consolas,Menlo,monospace}
+  /* pattern card */
+  .pat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:1.3em 0}
+  .pat .head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .pat .num{font-size:.78rem;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;
+    width:24px;height:24px;display:inline-grid;place-items:center;flex:none}
+  .pat h3{margin:0;font-size:1.1rem}
+  .pat .en{font-size:.8rem;color:var(--muted);font-weight:400}
+  .pat .def{margin:.6em 0 .2em}
+  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:.9em 0;font-size:.8rem}
+  .node{background:#eef3f6;border:1px solid #d4e0e8;color:var(--blue);border-radius:7px;padding:6px 10px;font-weight:600;white-space:nowrap}
+  .node.alt{background:var(--accent-soft);border-color:#eccdbd;color:var(--accent)}
+  .node.gray{background:#f0ede6;border-color:var(--line);color:var(--muted)}
+  .arr{color:var(--muted);font-weight:700}
+  .col{display:flex;flex-direction:column;gap:5px}
+  .when{font-size:.88rem;background:#f7f5f0;border-radius:8px;padding:9px 13px;margin-top:.5em}
+  .when b{color:var(--accent)}
+  table{border-collapse:collapse;width:100%;margin:1.2em 0;font-size:.9rem}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#f0ede6;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:1.4em 0}
+  .pill{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);letter-spacing:.03em}
+  /* quiz */
+  .quiz{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:1.4em 0}
+  .q{margin:1.4em 0 0}.q:first-child{margin-top:.4em}
+  .q .scenario{font-weight:600}
+  .opts{display:flex;flex-direction:column;gap:8px;margin:.7em 0 0}
+  .opts button{text-align:left;padding:11px 14px;border:1px solid var(--line);background:#fff;
+    border-radius:9px;cursor:pointer;font-size:.93rem;font-family:inherit;transition:.12s;color:var(--ink)}
+  .opts button:hover{border-color:var(--accent);background:#fffdfb}
+  .opts button.correct{background:var(--good-soft);border-color:var(--good);color:var(--good);font-weight:600}
+  .opts button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+  .opts button:disabled{cursor:default}
+  .fb{margin-top:.7em;font-size:.9rem;padding:11px 14px;border-radius:9px;display:none}
+  .fb.show{display:block}.fb.ok{background:var(--good-soft);color:var(--good)}.fb.no{background:var(--bad-soft);color:var(--bad)}
+  .score{margin-top:1.4em;font-weight:700;font-size:1.05rem;display:none}.score.show{display:block}
+  footer{margin-top:3em;padding-top:1.4em;border-top:2px solid var(--line);font-size:.9rem;color:var(--muted)}
+  a{color:var(--accent)}
+  .ask{background:#fff;border:1px dashed var(--accent);border-radius:10px;padding:14px 18px;margin:1.6em 0;font-size:.93rem}
+  .refs li{margin:.3em 0;font-size:.9rem}
+  @media print{body{background:#fff}.quiz,.ask,.pat{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">CCA-F · Domínio 1 — Arquitetura Agêntica (27%) · Lição 02</div>
+  <h1>Os 5 padrões de workflow</h1>
+  <p class="lede">Workflow tem <i>caminho fixo</i> — você já sabe. Mas quais caminhos valem a pena? A Anthropic nomeia <b>cinco</b>. Saber escolher entre eles é metade das questões de cenário.</p>
+
+  <div class="recap">
+    ↩︎ <b>Da Lição 01:</b> num <i>workflow</i>, é o <b>código</b> que controla o caminho (não o modelo). Estes 5 padrões são os “caminhos de código” mais úteis. <a href="0001-agente-workflow-conversacional.html">rever L01</a> · <a href="../reference/GLOSSARY.md">glossário</a>
+  </div>
+
+  <div class="mission">
+    <b>Por que importa:</b> os cenários da prova (extração estruturada, pipeline de pesquisa, suporte) quase sempre têm um padrão “certo”. Reconhecê-lo na hora — e saber por que os outros não servem — é exatamente a competência de arquiteto que a missão pede.
+  </div>
+
+  <h2>O princípio antes dos padrões</h2>
+  <blockquote>
+    Encontramos sucesso consistente usando padrões simples e componíveis, em vez de frameworks complexos. Comece com o mais simples possível; só aumente a complexidade quando ela claramente melhorar o resultado.
+    <cite>— Anthropic, “Building Effective Agents” (paráfrase)</cite>
+  </blockquote>
+  <p>Os 5 são <b>blocos componíveis</b>: você combina vários num sistema real. Vamos do mais simples ao mais autônomo.</p>
+
+  <!-- 1 -->
+  <div class="pat">
+    <div class="head"><span class="num">1</span><h3>Encadeamento de prompts</h3><span class="en">prompt chaining</span></div>
+    <p class="def">Decompõe a tarefa numa <b>sequência fixa</b> de passos; cada chamada LLM processa a saída da anterior.</p>
+    <div class="flow">
+      <span class="node">Entrada</span><span class="arr">→</span>
+      <span class="node">LLM 1</span><span class="arr">→</span>
+      <span class="node gray">[gate?]</span><span class="arr">→</span>
+      <span class="node">LLM 2</span><span class="arr">→</span>
+      <span class="node">Saída</span>
+    </div>
+    <div class="when"><b>Use quando:</b> a tarefa se divide em subpassos limpos e fixos. Trocar precisão por latência (mais passos, cada um mais fácil). Ex.: gerar um outline → escrever a partir dele. Pode ter um <i>gate</i> programático entre passos.</div>
+  </div>
+
+  <!-- 2 -->
+  <div class="pat">
+    <div class="head"><span class="num">2</span><h3>Roteamento</h3><span class="en">routing</span></div>
+    <p class="def">Uma chamada <b>classifica</b> a entrada e a direciona para uma tarefa especializada de followup.</p>
+    <div class="flow">
+      <span class="node alt">Classificador</span><span class="arr">→</span>
+      <span class="col">
+        <span class="node">Rota A (ex.: reembolso)</span>
+        <span class="node">Rota B (ex.: técnico)</span>
+        <span class="node">Rota C (ex.: vendas)</span>
+      </span>
+    </div>
+    <div class="when"><b>Use quando:</b> há categorias distintas de entrada, melhor tratadas separadamente, e a classificação é confiável. Permite prompts (ou modelos) especializados por rota. Ex.: triagem de tickets de suporte.</div>
+  </div>
+
+  <!-- 3 -->
+  <div class="pat">
+    <div class="head"><span class="num">3</span><h3>Paralelização</h3><span class="en">parallelization</span></div>
+    <p class="def">Roda várias chamadas <b>ao mesmo tempo</b> e agrega. Dois sabores: <b>sectioning</b> (subtarefas independentes) e <b>voting</b> (mesma tarefa N vezes p/ diversidade/consenso).</p>
+    <div class="flow">
+      <span class="node">Entrada</span><span class="arr">→</span>
+      <span class="col">
+        <span class="node">LLM (parte 1)</span>
+        <span class="node">LLM (parte 2)</span>
+        <span class="node">LLM (parte 3)</span>
+      </span>
+      <span class="arr">→</span><span class="node alt">Agregador</span>
+    </div>
+    <div class="when"><b>Use quando:</b> subtarefas são independentes (ganha velocidade) ou você quer várias tentativas/visões para votar (ganha confiança). Ex.: revisar código por segurança, estilo e perf em paralelo.</div>
+  </div>
+
+  <!-- 4 -->
+  <div class="pat">
+    <div class="head"><span class="num">4</span><h3>Orquestrador-trabalhadores</h3><span class="en">orchestrator-workers</span></div>
+    <p class="def">Um LLM central <b>decompõe a tarefa dinamicamente</b>, delega a LLMs trabalhadores e <b>sintetiza</b> os resultados.</p>
+    <div class="flow">
+      <span class="node alt">Orquestrador</span><span class="arr">→</span>
+      <span class="col">
+        <span class="node">Worker 1</span>
+        <span class="node">Worker 2</span>
+        <span class="node gray">Worker N (?)</span>
+      </span>
+      <span class="arr">→</span><span class="node alt">Síntese</span>
+    </div>
+    <div class="when"><b>Use quando:</b> você <b>não sabe de antemão</b> quantos/quais subtarefas existem — o orquestrador decide em runtime. Ex.: pesquisa multi-fonte, mudança de código em vários arquivos.</div>
+    <div class="card" style="margin:.8em 0 0">
+      <span class="pill">Nuance de prova</span>
+      <p style="margin:.5em 0 0;font-size:.92rem"><b>Paralelização vs. Orquestrador-trabalhadores:</b> na paralelização as subtarefas são <b>predefinidas por você</b>; no orquestrador-trabalhadores é o <b>modelo</b> que define as subtarefas em tempo de execução. Por isso este padrão já beira o <i>agente</i> — é o degrau entre workflow e agente.</p>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="pat">
+    <div class="head"><span class="num">5</span><h3>Avaliador-otimizador</h3><span class="en">evaluator-optimizer</span></div>
+    <p class="def">Uma chamada <b>gera</b> uma resposta; outra <b>avalia e dá feedback</b>, num laço, até passar no critério.</p>
+    <div class="flow">
+      <span class="node">Gerador</span><span class="arr">→</span>
+      <span class="node alt">Avaliador</span><span class="arr">→</span>
+      <span class="node gray">aprovado? → Saída</span>
+      <span class="arr">↺</span><span class="node">se não: refina</span>
+    </div>
+    <div class="when"><b>Use quando:</b> existe um critério de qualidade claro <b>e</b> a crítica iterativa agrega valor mensurável. Ex.: tradução literária refinada, busca que precisa de várias rodadas. <i>Atenção:</i> é um laço — não confunda com agente. Aqui o laço é <b>fixo</b> (gerar↔avaliar); no agente, o modelo decide o que fazer no laço.</div>
+  </div>
+
+  <h2>Heurística de seleção</h2>
+  <table>
+    <tr><th>Pergunta</th><th>Se sim →</th></tr>
+    <tr><td>Passos fixos, cada um alimentando o próximo?</td><td><b>Encadeamento</b></td></tr>
+    <tr><td>Entradas caem em categorias distintas?</td><td><b>Roteamento</b></td></tr>
+    <tr><td>Subtarefas independentes (ou quer várias tentativas)?</td><td><b>Paralelização</b></td></tr>
+    <tr><td>Subtarefas só conhecidas em runtime?</td><td><b>Orquestrador-trabalhadores</b></td></tr>
+    <tr><td>Critério de qualidade claro + refino iterativo ajuda?</td><td><b>Avaliador-otimizador</b></td></tr>
+    <tr><td>Nº de passos imprevisível, modelo dirige tudo?</td><td><b>→ não é workflow: é agente (L03)</b></td></tr>
+  </table>
+
+  <h2 id="quiz">Teste rápido <span class="pill">estilo prova</span></h2>
+  <p>Identifique o padrão. Feedback na hora.</p>
+
+  <div class="quiz" id="quiz">
+    <div class="q" data-correct="1">
+      <p class="scenario">1. Tickets de suporte chegam misturados: reembolso, bug técnico e dúvida de vendas. Cada tipo tem um prompt e base de conhecimento próprios. Qual padrão estrutura a entrada do sistema?</p>
+      <div class="opts">
+        <button>Encadeamento de prompts</button>
+        <button>Roteamento</button>
+        <button>Avaliador-otimizador</button>
+      </div><div class="fb"></div>
+    </div>
+
+    <div class="q" data-correct="2">
+      <p class="scenario">2. Um sistema de pesquisa recebe um tema amplo. Quantas fontes consultar e quais sub-perguntas investigar <b>só dá para saber depois de começar</b> — varia por tema. Um LLM central decide as sub-perguntas e junta tudo. Qual padrão?</p>
+      <div class="opts">
+        <button>Paralelização (sectioning)</button>
+        <button>Encadeamento de prompts</button>
+        <button>Orquestrador-trabalhadores</button>
+      </div><div class="fb"></div>
+    </div>
+
+    <div class="q" data-correct="0">
+      <p class="scenario">3. Para revisar um PR, você dispara <b>simultaneamente</b> três checagens fixas e sempre as mesmas — segurança, estilo e performance — e junta os comentários. Qual padrão?</p>
+      <div class="opts">
+        <button>Paralelização (sectioning)</button>
+        <button>Orquestrador-trabalhadores</button>
+        <button>Roteamento</button>
+      </div><div class="fb"></div>
+    </div>
+
+    <div class="q" data-correct="2">
+      <p class="scenario">4. Qual frase distingue corretamente <b>paralelização</b> de <b>orquestrador-trabalhadores</b>?</p>
+      <div class="opts">
+        <button>Paralelização usa vários modelos; orquestrador usa só um.</button>
+        <button>Paralelização é agêntica; orquestrador é um workflow.</button>
+        <button>Na paralelização as subtarefas são predefinidas por você; no orquestrador o modelo as define em runtime.</button>
+      </div><div class="fb"></div>
+    </div>
+
+    <div class="score" id="score"></div>
+  </div>
+
+  <div class="ask">
+    💬 <b>Sou seu professor.</b> Quer mapear um sistema real seu (ou um dos 6 cenários da prova) nesses padrões — inclusive combinando vários? Me chama no chat.
+  </div>
+
+  <h2>Próximo passo (prática)</h2>
+  <p>Para transformar entendimento em aprendizado, me mande no chat sua <b>pseudo-cola</b>: liste os 5 padrões com <b>uma linha sua</b> para cada (o gatilho de "quando usar"), e responda — <b>o que separa paralelização de orquestrador-trabalhadores?</b> É na compressão que fixa, e dela saem as entradas de glossário.</p>
+
+  <footer>
+    <p><b>Fontes:</b></p>
+    <ul class="refs">
+      <li><a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic — Building Effective Agents</a> (definições dos 5 padrões)</li>
+      <li><a href="https://dev.to/aws-builders/the-claude-certified-architect-exam-5-domains-6-scenarios-and-everything-you-need-to-know-4le3">CCA Exam — 5 Domains & 6 Scenarios</a></li>
+    </ul>
+    <p style="margin-top:1em">Lição 02 · <i>próxima:</i> L03 — quando subir de workflow para <b>agente</b> e padrões multi-agente (coordinator + subagentes, falha graciosa).</p>
+  </footer>
+</div>
+
+<script>
+  var WHY = {
+    0: "Roteamento: uma classificação inicial manda cada ticket para a rota especializada (reembolso/técnico/vendas). Encadeamento é sequência fixa; avaliador-otimizador é laço de qualidade.",
+    1: "Orquestrador-trabalhadores: as subtarefas só são conhecidas em runtime e um LLM central decide e sintetiza. Não é paralelização (subtarefas seriam predefinidas) nem encadeamento.",
+    2: "Paralelização (sectioning): subtarefas fixas e independentes rodando ao mesmo tempo, depois agregadas. Como são sempre as mesmas três, você as predefiniu — não é orquestrador.",
+    3: "O eixo é quem define as subtarefas: você (predefinidas → paralelização) vs. o modelo em runtime (→ orquestrador). Nº de modelos e 'ser agêntico' não são o critério."
+  };
+  var QS = Array.prototype.slice.call(document.querySelectorAll('#quiz .q'));
+  QS.forEach(function(q, qi){
+    var correct = +q.dataset.correct;
+    var fb = q.querySelector('.fb');
+    var btns = Array.prototype.slice.call(q.querySelectorAll('.opts button'));
+    btns.forEach(function(b, i){
+      b.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = "1";
+        var ok = (i === correct);
+        q.dataset.ok = ok ? "1" : "0";
+        btns.forEach(function(x, j){ x.disabled = true; if (j === correct) x.classList.add('correct'); });
+        if (!ok) b.classList.add('wrong');
+        fb.classList.add('show', ok ? 'ok' : 'no');
+        fb.textContent = (ok ? "✓ Correto. " : "✗ Não exatamente. ") + WHY[qi];
+        updateScore();
+      });
+    });
+  });
+  function updateScore(){
+    if (!QS.every(function(q){ return q.dataset.done; })) return;
+    var got = QS.filter(function(q){ return q.dataset.ok === "1"; }).length;
+    var s = document.getElementById('score');
+    s.classList.add('show');
+    s.textContent = "Placar: " + got + "/4. " + (got === 4
+      ? "🎯 Padrões dominados — pronto para subir ao nível agente (L03)."
+      : "Revise a heurística de seleção e me mande sua pseudo-cola no chat.");
+  }
+</script>
+</body>
+</html>
