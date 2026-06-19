@@ -27,7 +27,8 @@
 
 ## Pendências / ideias de próximas lições
 - Dívidas de produção da Lição 04 (6 vantagens + 5 modelos) QUITADAS em 15/06 (ver LR-0006). OK.
-- Lição 05 (Auto Scaling + ELB): ESTUDADA em 18/06, quiz 5/5. ✅
+- Lição 05 (Auto Scaling + ELB): ESTUDADA + APRENDIDA em 18/06 (quiz 5/5 + teach-back, ver LR-0009).
+  Correção aplicada: ASG/ELB devem abranger VÁRIAS AZs (ele dissera "dentro de uma zona").
 - Lição 06 (BÔNUS) = "Camadas de rede" criada em 18/06 a pedido dele. Decisão dele (18/06): UMA aula
   só, cobrindo as 7 camadas mas com ÊNFASE em L4 e L7 conectadas a NLB/ALB. (Cheguei a separar numa
   Lição 07 só de OSI; ele preferiu consolidar — Lição 07 apagada.) Estilo: 7 camadas = 7 perguntas

@@ -103,8 +103,12 @@ Vocabulário canônico. Toda lição deve usar estes termos de forma consistente
   o envelope e ler a carta** para decidir.
 - **ALB = camada 7** → roteia por conteúdo (caminho da URL, host); ideal para web/HTTP.
 - **NLB = camada 4** → encaminha por IP/porta (TCP/UDP); latência mínima, throughput altíssimo, IP estático.
+  Não interpreta o conteúdo: olha IP+porta e encaminha (é por *não* abrir o pacote que é rápido).
   Regra: precisa ler o HTTP para decidir → ALB; só velocidade bruta → NLB. Não existe "melhor", existe
   o certo para a carga.
+- **Régua porta vs. rota (do Samuel):** separar por **porta** (cada microsserviço numa porta) dá para
+  fazer no **NLB (L4)**; separar por **rota/URL** num **domínio único** (`/` → front, `/api` → backend)
+  exige **ALB (L7)**, porque é preciso ler o HTTP para saber o destino.
 
 ## Termos a definir nas próximas lições
 - Shared Responsibility Model, IAM, S3, VPC, RDS, Free Tier, Well-Architected.

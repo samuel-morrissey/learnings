@@ -10,5 +10,7 @@
 | Hierarquia Região → AZ → data center + Edge Location | [LR-0004](./learning-records/0004-d1-complete-global-infra.md) | 2026-06-18 | 2026-06-28 | 2 |
 | 4 fatores de escolha de região (funil: legal→serviço existe→latência→preço; NÃO usar mnemônico) | [LR-0004](./learning-records/0004-d1-complete-global-infra.md) | 2026-06-18 | 2026-06-21 | 1 |
 | 5 modelos de compra do EC2 (casar carga ↔ modelo) | [LR-0005](./learning-records/0005-d3-ec2-purchase-models.md) | 2026-06-15 | 2026-06-25 | 2 |
-| Auto Scaling (nº de instâncias, horizontal) vs ELB (distribui tráfego) | [GLOSSARY](./reference/GLOSSARY.md) | 2026-06-18 | 2026-06-23 | 1 |
-| Camada 4 (NLB, IP+porta) vs Camada 7 (ALB, lê HTTP) — analogia do envelope | [GLOSSARY](./reference/GLOSSARY.md) | 2026-06-18 | 2026-06-21 | 1 |
+| Auto Scaling (nº de instâncias, horizontal) vs ELB (distribui tráfego) | [GLOSSARY](./reference/GLOSSARY.md) | 2026-06-18 | 2026-06-28 | 2 |
+| ASG/ELB devem abranger VÁRIAS AZs (multi-AZ = alta disponibilidade; não "dentro de uma zona") | [LR-0009](./learning-records/0009-d3-asg-elb-learned-multi-az-correction.md) | 2026-06-18 | 2026-06-21 | 1 |
+| Camada 4 (NLB, IP+porta) vs Camada 7 (ALB, lê HTTP); régua porta vs. rota | [GLOSSARY](./reference/GLOSSARY.md) | 2026-06-18 | 2026-06-28 | 2 |
+| IP = camada 3 (rota/rede), TCP = camada 4 (porta/processo); "TCP/IP" = encapsulamento, não mesma camada | [LR-0008](./learning-records/0008-tcp-ip-layer-confusion.md) | 2026-06-18 | 2026-06-21 | 1 |
