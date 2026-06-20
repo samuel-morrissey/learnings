@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { buildSiteModel } from "../../../lib/site-model";
+import { COURSES_DIR } from "../../../lib/paths";
+
+export function getStaticPaths() {
+  const { courses } = buildSiteModel(COURSES_DIR);
+  return courses.map((course) => ({
+    params: { course: course.name },
+    props: { course },
+  }));
+}
+
+const { course } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={course.title}>
+  <header>
+    <a class="back" href={base}>← Learnings</a>
+    <h1>{course.title}</h1>
+  </header>
+  <main>
+    <ol class="list card">
+      {
+        course.lessons.map((lesson) => (
+          <li>
+            <a href={`${base}courses/${course.name}/${lesson.slug}/`}>
+              {lesson.title}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </main>
+</BaseLayout>

@@ -1,0 +1,46 @@
+---
+title: "Olá, MDX: a primeira Aula da Plataforma"
+order: 1
+domain: "Plataforma"
+summary: "A bala traçadora: uma Aula em MDX renderiza ponta-a-ponta pela Plataforma Astro, usando o Componente Callout sem nenhum import."
+prerequisites: []
+estMinutes: 5
+---
+
+Esta Aula existe para **provar o caminho completo**: o Frontmatter acima foi
+validado por schema, esta prosa é Markdown puro estilizada pelo layout, e os
+blocos abaixo usam o Componente `Callout` do Catálogo — escolhido por
+_significado_, sem escrever HTML/CSS e sem `import`.
+
+## Markdown puro continua funcionando
+
+Títulos, ênfase, `código inline`, listas e tabelas seguem como Markdown, e o
+layout aplica a identidade visual a partir dos design tokens centralizados:
+
+| Camada      | Antes (HTML artesanal)        | Agora (Plataforma)              |
+| ----------- | ----------------------------- | ------------------------------- |
+| Conteúdo    | HTML escrito à mão            | Markdown/MDX                    |
+| Componentes | `<div class="callout warn">`  | `<Callout variant="warn">`      |
+| Estilo      | CSS duplicado por Aula        | Design tokens centralizados     |
+
+## O Componente Callout, por significado
+
+<Callout variant="info">
+  **Nota:** o Pedagogo insere um Callout escolhendo a variante (`info`, `warn`,
+  `ok`), não cores ou markup. A consistência visual vem dos tokens.
+</Callout>
+
+<Callout variant="ok">
+  **Boa prática:** prefira sempre um Componente do Catálogo a inventar um
+  Esboço. O Esboço é a escotilha de escape para o ~10% que o Catálogo não cobre.
+</Callout>
+
+<Callout variant="warn">
+  **Atenção:** esta fatia **não** mexe no CI/deploy nem no modelo HTML antigo.
+  Ela é verificável localmente com `astro build`.
+</Callout>
+
+## Conectando
+
+Se você está lendo isto renderizado pela Plataforma, a bala traçadora acertou o
+alvo: descoberta, validação, layout e Catálogo funcionam ponta-a-ponta.

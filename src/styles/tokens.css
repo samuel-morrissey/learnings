@@ -1,0 +1,34 @@
+/*
+ * Centralized design tokens — the single source of the Platform's visual
+ * identity. Previously these were duplicated in every hand-written Lesson and
+ * in scripts/build.js; now layouts, Components and Esboços consume them via
+ * var(--token) so every Lesson — however creative — looks like one product.
+ */
+:root {
+  /* Page background gradient (navy) */
+  --bg1: #10202e;
+  --bg2: #16344a;
+
+  /* Surfaces & ink */
+  --card: #ffffff;
+  --ink: #1a2230;
+  --muted: #5b6675;
+  --line: #e7ebf0;
+  --soft: #f6f8fa;
+
+  /* AWS-derived brand accents */
+  --accent: #ff9900;
+  --accent-deep: #ec7211;
+  --aws: #232f3e;
+
+  /* Semantic status colors (used by Callout variants) */
+  --ok: #1f9d55;
+  --ok-bg: #e7f6ee;
+  --warn: #ec7211;
+  --warn-bg: #fff8e6;
+  --info: #2f6fb0;
+  --info-bg: #e9f2fb;
+
+  /* Reading column */
+  --measure: 760px;
+}

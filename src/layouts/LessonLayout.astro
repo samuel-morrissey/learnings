@@ -1,0 +1,147 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+// The Lesson shell: kicker + title + lead, then the rendered MDX body, then a
+// link back to the Course. Prose styles target the slotted MDX content, so
+// Markdown headings/tables/code inherit the product's identity via the tokens.
+interface Props {
+  title: string;
+  domain: string;
+  summary: string;
+  estMinutes: number;
+  courseTitle: string;
+  courseHref: string;
+}
+
+const { title, domain, summary, estMinutes, courseTitle, courseHref } =
+  Astro.props;
+---
+
+<BaseLayout title={title}>
+  <header>
+    <a class="back" href={courseHref}>← {courseTitle}</a>
+  </header>
+
+  <article class="card lesson">
+    <span class="kicker">
+      <span class="kicker__dot" aria-hidden="true"></span>
+      {domain} · ~{estMinutes} min
+    </span>
+    <h1 class="lesson__title">{title}</h1>
+    <p class="lesson__lead">{summary}</p>
+    <slot />
+  </article>
+
+  <nav class="lesson__nav">
+    <a class="back" href={courseHref}>← Voltar para {courseTitle}</a>
+  </nav>
+</BaseLayout>
+
+<style is:global>
+  .lesson {
+    padding: 40px 44px;
+    margin-bottom: 24px;
+  }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--aws);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .kicker__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .lesson__title {
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 18px 0 6px;
+    color: var(--aws);
+  }
+  .lesson__lead {
+    font-size: 17px;
+    color: var(--muted);
+    margin: 12px 0;
+  }
+
+  /* Markdown prose inside the Lesson body */
+  .lesson h2 {
+    font-size: 21px;
+    margin: 34px 0 10px;
+    color: var(--aws);
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+  }
+  .lesson h3 {
+    font-size: 16px;
+    margin: 22px 0 6px;
+    color: var(--aws);
+  }
+  .lesson p {
+    margin: 12px 0;
+  }
+  .lesson a {
+    color: var(--accent-deep);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-deep);
+  }
+  .lesson code {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 0.9em;
+  }
+  .lesson pre {
+    background: var(--aws);
+    color: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    overflow: auto;
+  }
+  .lesson pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+  }
+  .lesson table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+  .lesson th,
+  .lesson td {
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .lesson th {
+    background: var(--aws);
+    color: #fff;
+  }
+  .lesson tr:nth-child(even) td {
+    background: var(--soft);
+  }
+
+  .lesson__nav {
+    margin-top: 4px;
+  }
+
+  @media (max-width: 560px) {
+    .lesson {
+      padding: 28px 22px;
+    }
+  }
+</style>
