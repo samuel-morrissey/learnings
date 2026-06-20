@@ -5,6 +5,7 @@ import Sources from "./components/Sources.astro";
 import Kicker from "./components/Kicker.astro";
 import Nav from "./components/Nav.astro";
 import CompareCards from "./components/CompareCards.astro";
+import Quiz from "./components/Quiz.astro";
 
 /**
  * The Catalog — the single source of truth for the Components a Lesson may use.
@@ -21,4 +22,5 @@ export const catalog = {
   Kicker,
   Nav,
   CompareCards,
+  Quiz,
 };

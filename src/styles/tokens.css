@@ -29,6 +29,8 @@
   --warn-bg: #fff8e6;
   --info: #2f6fb0;
   --info-bg: #e9f2fb;
+  --danger: #c5374a;
+  --danger-bg: #fdecee;
 
   /* Reading column */
   --measure: 760px;

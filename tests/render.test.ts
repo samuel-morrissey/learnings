@@ -9,6 +9,7 @@ import MissionBox from "../src/components/MissionBox.astro";
 import AskBox from "../src/components/AskBox.astro";
 import CompareCards from "../src/components/CompareCards.astro";
 import Sources from "../src/components/Sources.astro";
+import Quiz from "../src/components/Quiz.astro";
 
 let container: AstroContainer;
 
@@ -175,6 +176,76 @@ test("Nav omits the missing end (first Lesson has no prev)", async () => {
 
   expect(html).toContain('rel="next"');
   expect(html).not.toContain('rel="prev"');
+});
+
+// --- Quiz: the first interactive island (Seam B: semantic output) ---
+
+const QUIZ_QUESTIONS = [
+  {
+    prompt: "Onde guardar uploads de usuários atrás de um Auto Scaling Group?",
+    options: [
+      "No disco EBS da instância",
+      "No Amazon S3 (armazenamento de objetos)",
+      "Em variáveis de ambiente",
+    ],
+    answer: 1,
+    explanation: "O EBS morre com a instância; o S3 é independente da computação.",
+  },
+  {
+    prompt: "Em que escopo o nome de um bucket S3 precisa ser único?",
+    options: ["Na sua conta", "No mundo inteiro", "Na região"],
+    answer: 1,
+  },
+];
+
+test("Quiz exposes every alternative as a selectable option", async () => {
+  const html = await container.renderToString(Quiz, {
+    props: { questions: QUIZ_QUESTIONS },
+  });
+
+  // One option per alternative across both questions (3 + 3 = 6).
+  expect((html.match(/class="quiz__opt"/g) ?? []).length).toBe(6);
+  expect(html).toContain("No Amazon S3 (armazenamento de objetos)");
+  expect(html).toContain("No mundo inteiro");
+});
+
+test("Quiz marks the correct alternative in the markup", async () => {
+  const html = await container.renderToString(Quiz, {
+    props: { questions: QUIZ_QUESTIONS },
+  });
+
+  // Exactly one correct option per question; the rest marked false.
+  expect((html.match(/data-correct="true"/g) ?? []).length).toBe(2);
+  expect((html.match(/data-correct="false"/g) ?? []).length).toBe(4);
+  // The correct answer to Q1 carries the marker.
+  expect(html).toMatch(
+    /data-correct="true"[^>]*>\s*No Amazon S3 \(armazenamento de objetos\)/,
+  );
+});
+
+test("Quiz renders the prompts, explanation and the data the island grades on", async () => {
+  const html = await container.renderToString(Quiz, {
+    props: { questions: QUIZ_QUESTIONS },
+  });
+
+  expect(html).toContain("Onde guardar uploads de usuários");
+  expect(html).toContain("Em que escopo o nome de um bucket S3 precisa ser único?");
+  // The correct-answer index travels with each question for the island to read.
+  expect((html.match(/data-answer="1"/g) ?? []).length).toBe(2);
+  // The explanation ships in the markup so feedback is offline-ready.
+  expect(html).toContain("O EBS morre com a instância");
+  // A score region exists for the end-of-quiz tally.
+  expect(html).toContain("data-score");
+});
+
+test("Quiz is a scoped island — no inline JS leaks into the page", async () => {
+  const html = await container.renderToString(Quiz, {
+    props: { questions: QUIZ_QUESTIONS, title: "Teste de S3" },
+  });
+
+  expect(html).toContain("Teste de S3");
+  // Interactivity lives in the bundled island script, never inline handlers.
+  expect(html).not.toContain("onclick");
 });
 
 test("Sources renders footnotes with derived numbering and ids", async () => {

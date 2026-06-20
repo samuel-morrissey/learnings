@@ -45,6 +45,37 @@ serve para duas, três ou mais opções, e uma pode ficar em destaque:
   opção em foco sem que o Pedagogo escreva uma linha de CSS.
 </Callout>
 
+## Quiz — a island dirigida por dados
+
+O `Quiz` é o primeiro Componente interativo. O Pedagogo passa as questões, as
+alternativas, a resposta correta e a explicação — e nada de JS. A interatividade
+fica escopada na island: feedback na hora ao responder e a pontuação ao final.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Por que o Quiz é dirigido por dados?",
+      options: [
+        "Para o Pedagogo escrever JS na Aula",
+        "Para o Pedagogo declarar só os dados (questões/resposta/explicação)",
+        "Para abrir libs externas via CDN",
+      ],
+      answer: 1,
+      explanation: "A interatividade vive escopada no Componente; a Aula só descreve o conteúdo.",
+    },
+    {
+      prompt: "O que acontece ao responder uma questão?",
+      options: [
+        "A alternativa correta é destacada e o feedback aparece na hora",
+        "A página recarrega",
+        "Nada até o fim do Quiz",
+      ],
+      answer: 0,
+      explanation: "E, ao final, a pontuação é exibida.",
+    },
+  ]}
+/>
+
 ## AskBox — a tarefa de produção
 
 A Aula fecha pedindo ao aluno que **produza** — é onde o aprendizado acontece:
