@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import Kicker from "../components/Kicker.astro";
 
 // The Lesson shell: kicker + title + lead, then the rendered MDX body, then a
 // link back to the Course. Prose styles target the slotted MDX content, so
@@ -23,10 +24,7 @@ const { title, domain, summary, estMinutes, courseTitle, courseHref } =
   </header>
 
   <article class="card lesson">
-    <span class="kicker">
-      <span class="kicker__dot" aria-hidden="true"></span>
-      {domain} · ~{estMinutes} min
-    </span>
+    <Kicker>{domain} · ~{estMinutes} min</Kicker>
     <h1 class="lesson__title">{title}</h1>
     <p class="lesson__lead">{summary}</p>
     <slot />
@@ -41,25 +39,6 @@ const { title, domain, summary, estMinutes, courseTitle, courseHref } =
   .lesson {
     padding: 40px 44px;
     margin-bottom: 24px;
-  }
-  .kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--aws);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    border-radius: 999px;
-  }
-  .kicker__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
   }
   .lesson__title {
     font-size: 30px;

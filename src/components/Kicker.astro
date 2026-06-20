@@ -1,0 +1,44 @@
+---
+// The Kicker: the domain/lesson seal that opens a Lesson (e.g.
+// "CLF-C02 · Lição 07 · Domínio 3 — Storage"). One definition for the badge
+// markup, reused by the Lesson shell *and* available in MDX without an import,
+// so teach-v3 can author a Kicker by hand exactly as teach-v2 did in HTML.
+interface Props {
+  /** Brand tone of the pill; defaults to the AWS navy used today. */
+  tone?: "aws" | "accent";
+}
+
+const { tone = "aws" } = Astro.props;
+---
+
+<span class:list={["kicker", `kicker--${tone}`]} data-tone={tone}>
+  <span class="kicker__dot" aria-hidden="true"></span>
+  <slot />
+</span>
+
+<style>
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .kicker--aws {
+    background: var(--aws);
+  }
+  .kicker--accent {
+    background: var(--accent-deep);
+  }
+  .kicker__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+</style>

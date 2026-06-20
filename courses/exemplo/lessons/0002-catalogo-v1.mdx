@@ -1,0 +1,69 @@
+---
+title: "Catálogo v1: os Componentes de conteúdo"
+order: 2
+domain: "Plataforma"
+summary: "Uma volta pelo Catálogo v1 — MissionBox, Callout, CompareCards, AskBox, Nav e Sources — todos escolhidos por significado, sem nenhum import."
+prerequisites: ["exemplo/0001-ola-mdx"]
+estMinutes: 6
+---
+
+Esta Aula exercita o **Catálogo v1**: a componentização 1:1 do vocabulário que as
+Aulas já usavam em HTML. O Pedagogo escreve por _significado_ — `<MissionBox>`,
+`<CompareCards>`, `<AskBox>` — e a Plataforma cuida do markup, do estilo e do
+offline.
+
+<MissionBox>
+  Cada Componente do Catálogo encoda uma intenção pedagógica. Em vez de decidir
+  _que HTML escrever_, o Pedagogo decide _o que ensinar_ — e o resultado fica
+  on-brand porque todo Componente consome os mesmos design tokens.
+
+  <span slot="meta">⏱️ ~6 min · pré-requisito: a Aula "Olá, MDX".</span>
+</MissionBox>
+
+## Kicker — o selo do domínio
+
+O `Kicker` é o selo que abre a Aula (o mesmo que aparece acima do título). Ele
+também está disponível no corpo:
+
+<Kicker>Plataforma · Catálogo v1</Kicker>
+
+## CompareCards — comparar N opções
+
+`CompareCards` generaliza os antigos _triple cards_. É dirigido por dados, então
+serve para duas, três ou mais opções, e uma pode ficar em destaque:
+
+<CompareCards
+  cards={[
+    { tag: "EBS · block", label: "Bloco", description: "Um HD cru preso a uma instância." },
+    { tag: "EFS · file", label: "Arquivo", description: "Um compartilhamento de rede que vários servidores montam." },
+    { tag: "S3 · object", label: "Objeto", description: "Cada arquivo é um objeto acessado por uma key, via HTTP.", highlight: true },
+  ]}
+/>
+
+<Callout variant="info">
+  **Analogia de dev:** o destaque em "Objeto" mostra como `CompareCards` aponta a
+  opção em foco sem que o Pedagogo escreva uma linha de CSS.
+</Callout>
+
+## AskBox — a tarefa de produção
+
+A Aula fecha pedindo ao aluno que **produza** — é onde o aprendizado acontece:
+
+<AskBox>
+  Volte ao chat e descreva, **com suas palavras**, a diferença entre `bloco`,
+  `arquivo` e `objeto`. Comprimir do seu jeito é o que fixa.
+</AskBox>
+
+## Nav e Sources — continuar e creditar
+
+<Nav
+  prev={{ href: "../0001-ola-mdx/", label: "Olá, MDX", sub: "A bala traçadora" }}
+  next={{ href: "#", label: "Próxima Aula", sub: "em breve" }}
+/>
+
+<Sources
+  items={[
+    { label: "ADR 0002 — Catálogo fechado com Esboços em trilhos" },
+    { label: "AWS — O que é o Amazon S3 (User Guide)", href: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html" },
+  ]}
+/>
