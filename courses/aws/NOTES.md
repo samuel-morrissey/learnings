@@ -29,13 +29,14 @@
 - Dívidas de produção da Lição 04 (6 vantagens + 5 modelos) QUITADAS em 15/06 (ver LR-0006). OK.
 - Lição 05 (Auto Scaling + ELB): ESTUDADA + APRENDIDA em 18/06 (quiz 5/5 + teach-back, ver LR-0009).
   Correção aplicada: ASG/ELB devem abranger VÁRIAS AZs (ele dissera "dentro de uma zona").
-- Lição 06 (BÔNUS) = "Camadas de rede" criada em 18/06 a pedido dele. Decisão dele (18/06): UMA aula
-  só, cobrindo as 7 camadas mas com ÊNFASE em L4 e L7 conectadas a NLB/ALB. (Cheguei a separar numa
-  Lição 07 só de OSI; ele preferiu consolidar — Lição 07 apagada.) Estilo: 7 camadas = 7 perguntas
-  (sem mnemônico, preferência dele); só L4/L7 caem na prova, resto é fluência fundamental. ENTREGUE,
-  ainda não praticada: pedi mini cheat sheet L4 vs L7 (bônus: as 7 camadas) → vira verbete do glossário.
-- ⚠️ Renumeração: o **Amazon S3 volta a ser a Lição 07** (bônus de rede ocupa só o nº 06).
-- D3 próximos: **Lição 07 = Amazon S3** (storage, já anunciada na 05); depois Lambda/contêineres
+- Lição 06 (BÔNUS) = "Camadas de rede": ESTUDADA + APRENDIDA em 18/06 (quiz 4/5 + teach-back + a régua
+  "porta vs. rota" dele, ver LR-0008). Glossário já tem a seção de camadas com a autoria dele.
+- Lição 07 = **Amazon S3** (object storage): CRIADA + ENTREGUE em 19/06. Escopo: modelo bucket·objeto·key,
+  block vs object (EBS vs S3), durabilidade vs disponibilidade (11 noves). Classes de armazenamento
+  DELIBERADAMENTE adiadas para a Lição 08 (é o tópico de S3 que mais cai). Abriu a sessão 19/06 com
+  revisão: 3/3 corretas (modelos de implantação atrasado, NLB L4, funil de região) — todos promovidos a
+  estágio 2. PENDENTE: praticar a 07 (mini cheat sheet S3 → vira seção Storage do glossário, ainda não existe).
+- D3 próximos: **Lição 08 = classes de armazenamento do S3**; depois Lambda/contêineres
   (ECS/Fargate), depois bancos (RDS/DynamoDB) e rede (VPC).
 - D2: Modelo de Responsabilidade Compartilhada (muito cobrado) — Q4 das Lições 04/05 já planta a semente.
 - D2: IAM (usuários, grupos, roles, políticas, MFA).
