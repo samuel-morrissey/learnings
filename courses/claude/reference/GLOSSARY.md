@@ -31,3 +31,27 @@ _Avoid_: feedback, resultado
 **Sistema conversacional**:
 O **formato de interação** (chat multi-turno guiado pelo humano), não uma posição na régua de autonomia. Pode ser chamada única por turno; é independente de o sistema ser ou não agêntico.
 _Avoid_: chatbot (como sinônimo de agente)
+
+## Padrões de workflow
+
+Os 5 blocos componíveis de caminho fixo (Anthropic, "Building Effective Agents"). Todos são workflow — quem controla o caminho é o código —, exceto onde o modelo define passos em runtime.
+
+**Encadeamento de prompts (prompt chaining)**:
+Sequência fixa de passos onde a saída de cada chamada vira a entrada da próxima; cada passo pensa numa parte pequena. Pode ter um *gate* programático entre passos.
+_Avoid_: pipeline genérico
+
+**Roteamento (routing)**:
+Um classificador define a categoria da entrada e a direciona para **uma rota especializada** (1 de N predefinidas). Permite prompt/modelo dedicado por categoria.
+_Avoid_: filtro, switch
+
+**Paralelização (parallelization)**:
+Várias chamadas rodando ao mesmo tempo, depois agregadas. Dois sabores: **sectioning** (subtarefas independentes que *você* predefiniu) e **voting** (mesma tarefa N vezes para consenso/diversidade).
+_Avoid_: multithreading, batch
+
+**Orquestrador-trabalhadores (orchestrator-workers)**:
+Um LLM central **decompõe a tarefa em subtarefas que ele mesmo cria em runtime** (desconhecidas de antemão), delega a workers e sintetiza. É o degrau entre workflow e agente.
+_Avoid_: escolher entre workers fixos (isso é roteamento), paralelização
+
+**Avaliador-otimizador (evaluator-optimizer)**:
+Um LLM gera, outro avalia e dá feedback, num **laço fixo** que repete até um critério claro de sucesso. Exige critério bem definido — sem ele, o laço pode nunca convergir.
+_Avoid_: self-correction, agente (o laço aqui é fixo, não dirigido pelo modelo)

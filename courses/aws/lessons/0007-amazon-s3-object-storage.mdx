@@ -1,0 +1,182 @@
+---
+title: "Amazon S3: guardar arquivos sem um disco no caminho"
+order: 7
+domain: "Domínio 3 — Storage"
+summary: "Você já sabe ligar uma instância EC2 e escalá-la com Auto Scaling. Mas onde ficam os arquivos — uploads, backups, imagens — quando a instância pode nascer e morrer a qualquer hora? A resposta é o S3, e ele não é um disco."
+prerequisites: ["aws/0004-amazon-ec2-e-modelos-de-compra"]
+estMinutes: 8
+---
+
+<MissionBox>
+  S3 é o serviço de armazenamento mais cobrado no CLF-C02 e o mais onipresente da
+  AWS. Saber _por que_ existe um armazenamento "de objetos" — e por que ele é
+  melhor que pendurar um disco na EC2 — é exatamente o tipo de decisão de infra
+  que você quer **defender com autoridade**.
+
+  <span slot="meta">⏱️ ~8 min · quiz de 5 questões · pré-requisito: Lição 04 (EC2).</span>
+</MissionBox>
+
+## O problema que o S3 resolve
+
+O disco que vem com uma instância EC2 (o **EBS**) tem três limitações que travam
+um sistema real: ele está **preso a uma instância só**, tem **tamanho fixo**, e
+**morre junto** se você destrói a máquina (e o Auto Scaling destrói máquinas o
+tempo todo). Para uploads de usuários, backups e mídia você precisa de algo
+**independente da computação**: que viva sozinho, cresça sem limite e seja
+acessível de qualquer lugar. Isso é **armazenamento de objetos**.
+
+## Três jeitos de guardar dados
+
+Pense como você já pensa em software — são três abstrações diferentes, não "uma
+melhor que a outra":
+
+<CompareCards
+  cards={[
+    { tag: "EBS · block", label: "Bloco", description: "Um HD cru que você formata e monta. Preso a uma instância. É o disco C: da sua EC2." },
+    { tag: "EFS · file", label: "Arquivo", description: "Um compartilhamento de rede (pasta) que vários servidores montam ao mesmo tempo. Tipo um NAS." },
+    { tag: "S3 · object", label: "Objeto", description: "Sem disco, sem pasta. Cada arquivo é um objeto acessado por uma chave, via API HTTP. Cresce sem limite.", highlight: true },
+  ]}
+/>
+
+<Callout variant="info">
+  **Analogia de dev:** o S3 não é um sistema de arquivos — é um **dicionário/hash
+  map gigante e gerenciado**: você dá uma **key** (string) e recebe o **objeto**
+  (bytes + metadados). Não há "abrir pasta e listar" como num filesystem; há
+  `GET`/`PUT` por chave sobre HTTP.<sup><a href="#r1">1</a></sup>
+</Callout>
+
+## O modelo: bucket → objeto → key
+
+Só três palavras, e a prova gira em torno delas:
+
+<BucketObjectKey />
+
+- **Bucket** — o contêiner de topo. O **nome é único no mundo inteiro** (todos os
+  clientes AWS dividem o mesmo espaço de nomes), e o bucket **mora numa única
+  região** — o que importa para a **soberania de dados (LGPD)**.
+- **Objeto** — o arquivo em si (até 5 TB) **mais os metadados**. É a unidade que
+  você guarda.
+- **Key** — o nome completo do objeto dentro do bucket. `bucket + key` identifica
+  unicamente qualquer objeto (é o que vira a URL).
+
+## As duas promessas: durabilidade ≠ disponibilidade
+
+S3 é famoso pelos **"11 noves"**. Cuidado para não misturar duas garantias
+diferentes:
+
+| Promessa            | O que garante                                                                                  | Número (S3 Standard)            |
+| ------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------- |
+| **Durabilidade**    | **Não perco** o objeto: ele sobrevive. A AWS guarda cópias em **várias AZs** da região.        | 99,999999999% (**11 noves**)    |
+| **Disponibilidade** | **Consigo acessar agora**: o serviço responde quando peço.                                     | ~99,99% (≈ 4 noves)             |
+
+<Callout variant="ok">
+  **A régua numa frase:** **durabilidade = "não perco"** (o dado existe lá,
+  garantido); **disponibilidade = "consigo pegar agora"** (o serviço está no ar).
+  Os 11 noves são de _durabilidade_ — quase impossível perder um objeto. É essa
+  garantia que faz do S3 o destino natural de **backups**.<sup><a href="#r2">2</a></sup>
+</Callout>
+
+## Para que se usa (e por que é OpEx puro)
+
+Backups e arquivamento, hospedagem de **site estático**, **data lakes** e
+analytics, mídia (fotos/vídeos), logs, distribuição de software. Você **paga só
+pelo que guarda e transfere** — sem provisionar tamanho, sem servidor para
+manter. É a troca **CapEx→OpEx** aplicada a storage.
+
+<Callout variant="warn">
+  **Fica para a próxima (Lição 08):** o S3 tem várias **classes de armazenamento**
+  (Standard, Intelligent-Tiering, Glacier…) que trocam **custo por velocidade de
+  acesso**. É o tópico de S3 que _mais_ cai na prova — e vamos dedicar uma lição
+  só a ele. Por ora, basta saber que **existe** e que serve para baratear dado
+  pouco acessado.
+</Callout>
+
+## Conectando à sua missão
+
+Quando alguém perguntar _"por que não salvamos os uploads no disco da EC2?"_, a
+resposta defensável é: **"porque a instância é descartável (o Auto Scaling a
+recria), o disco morreria com ela e não escala. O S3 desacopla o dado da
+computação, dá 11 noves de durabilidade e a gente paga só pelo que usa."** Isso é
+decidir storage com autoridade — não por tentativa e erro.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Sua app web roda atrás de um Auto Scaling Group (instâncias nascem e morrem). Onde guardar os uploads dos usuários?",
+      options: [
+        "No disco EBS da instância",
+        "Em memória RAM da instância",
+        "No Amazon S3 (armazenamento de objetos)",
+        "Em variáveis de ambiente",
+      ],
+      answer: 2,
+      explanation: "O disco EBS está preso à instância e some quando o Auto Scaling a destrói. Uploads precisam de armazenamento independente da computação, durável e acessível por HTTP — isso é o S3 (objeto).",
+    },
+    {
+      prompt: "Em que escopo o nome de um bucket S3 precisa ser único?",
+      options: [
+        "Único dentro da sua conta",
+        "Único no mundo inteiro (toda a AWS)",
+        "Único dentro da região",
+        "Não precisa ser único",
+      ],
+      answer: 1,
+      explanation: "O nome do bucket é único em TODA a AWS — todos os clientes compartilham o mesmo espaço de nomes (por isso ele vira parte de uma URL global). O conteúdo, porém, mora em uma única região.",
+    },
+    {
+      prompt: "Você cria um objeto com a key faturas/2026/nf.pdf. O que as barras / realmente são?",
+      options: [
+        "Pastas reais num sistema de arquivos",
+        "Pontos de montagem de disco",
+        "Separadores de buckets diferentes",
+        "Prefixos — convenção visual num namespace plano",
+      ],
+      answer: 3,
+      explanation: "No S3 o namespace é plano: a key faturas/2026/nf.pdf é uma string só. As barras são prefixos (convenção visual), não pastas reais — não existe um diretório de verdade por baixo.",
+    },
+    {
+      prompt: "Os 11 noves (99,999999999%) do S3 Standard descrevem qual garantia?",
+      options: [
+        "Durabilidade — a chance de o objeto ser perdido é ínfima",
+        "Disponibilidade — quanto tempo o serviço fica no ar",
+        "Velocidade de download",
+        "Desconto máximo de preço",
+      ],
+      answer: 0,
+      explanation: "11 noves são de DURABILIDADE: a chance de perder um objeto é ínfima porque a AWS replica em várias AZs. Disponibilidade (conseguir acessar agora) é separada e menor (~99,99%).",
+    },
+    {
+      prompt: "Qual frase distingue corretamente S3 de EBS?",
+      options: [
+        "S3 é um disco preso a uma instância; EBS é compartilhado",
+        "São a mesma coisa com nomes diferentes",
+        "S3 é armazenamento de objetos (key→objeto, via HTTP); EBS é um disco de bloco preso a uma instância",
+        "EBS guarda objetos por chave; S3 é um HD cru",
+      ],
+      answer: 2,
+      explanation: "S3 = objeto (key→objeto via HTTP, sem filesystem, escala infinita); EBS = bloco (um HD preso a uma instância). É a distinção que decide qual storage usar.",
+    },
+  ]}
+/>
+
+<AskBox>
+  Volte ao chat e me mande, **com suas palavras**, um mini cheat sheet do **S3**:
+  (1) o que é "armazenamento de objetos" e como difere de um disco (EBS); (2) o
+  trio `bucket · objeto · key` em uma frase cada; (3) a régua **durabilidade vs
+  disponibilidade**. Não vale colar daqui — comprimir do seu jeito é o que fixa;
+  eu corrijo e isso vira o verbete de S3 no glossário. Dúvidas valem: `"por que o
+  bucket precisa de nome único global?"` ou `"o S3 pode servir um site sozinho,
+  sem EC2?"`.
+</AskBox>
+
+<Nav
+  prev={{ href: "#", label: "Lição 06", sub: "Camadas de rede · L4 vs L7" }}
+  next={{ href: "#", label: "Lição 08", sub: "Classes de armazenamento (em breve)" }}
+/>
+
+<Sources
+  items={[
+    { label: "AWS — O que é o Amazon S3 (User Guide)", href: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html" },
+    { label: "AWS — S3 Storage Classes (durabilidade & disponibilidade)", href: "https://aws.amazon.com/s3/storage-classes/" },
+  ]}
+/>

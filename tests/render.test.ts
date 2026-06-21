@@ -10,6 +10,7 @@ import AskBox from "../src/components/AskBox.astro";
 import CompareCards from "../src/components/CompareCards.astro";
 import Sources from "../src/components/Sources.astro";
 import Quiz from "../src/components/Quiz.astro";
+import BucketObjectKey from "../src/sketches/BucketObjectKey.astro";
 
 let container: AstroContainer;
 
@@ -246,6 +247,59 @@ test("Quiz is a scoped island — no inline JS leaks into the page", async () =>
   expect(html).toContain("Teste de S3");
   // Interactivity lives in the bundled island script, never inline handlers.
   expect(html).not.toContain("onclick");
+});
+
+// --- Esboço: the bucket → objeto → key diagram (the escape hatch on rails) ---
+
+test("BucketObjectKey renders the bucket and one row per object key", async () => {
+  const html = await container.renderToString(BucketObjectKey, {
+    props: {
+      bucket: "caravela-uploads-prod",
+      objects: [
+        { icon: "📄", key: "faturas/2026/06/nf-1837.pdf", meta: "objeto · 240 KB" },
+        { icon: "🖼️", key: "avatars/user-42.png", meta: "objeto · 18 KB" },
+      ],
+    },
+  });
+
+  expect(html).toContain("caravela-uploads-prod");
+  // One row per object.
+  expect((html.match(/class="bok__obj"/g) ?? []).length).toBe(2);
+  expect(html).toContain("faturas/2026/06/nf-1837.pdf");
+  expect(html).toContain("avatars/user-42.png");
+  // The model's two scope rules travel as text the Aula can teach against.
+  expect(html).toContain("nome único no mundo");
+  expect(html).toContain("vive em 1 região");
+});
+
+test("BucketObjectKey ships defaults so the Aula references it bare", async () => {
+  const html = await container.renderToString(BucketObjectKey);
+
+  expect(html).toContain("caravela-uploads-prod");
+  expect(html).toMatch(/namespace é/);
+});
+
+test("BucketObjectKey is a scoped Esboço — its styles cannot leak to the page", async () => {
+  const html = await container.renderToString(BucketObjectKey);
+
+  // Astro binds the Esboço's styles to one component scope: every element gets
+  // the same `data-astro-cid` marker and the CSS rules are emitted suffixed with
+  // it, so no rule can ever match an element outside this subtree. A single
+  // distinct scope id across the whole render is the proof there is no leak.
+  const cids = new Set(
+    [...html.matchAll(/data-astro-cid-([a-z0-9]+)/g)].map((m) => m[1]),
+  );
+  expect(cids.size).toBe(1);
+  // The root itself carries the scope, so the entire Esboço is contained by it.
+  expect(html).toMatch(/<figure class="bok"[^>]*data-astro-cid-/);
+});
+
+test("BucketObjectKey is a static Esboço — it ships no script", async () => {
+  const html = await container.renderToString(BucketObjectKey);
+
+  // This Esboço is a faithful static diagram: no island, no inline handlers.
+  expect(html).not.toContain("onclick");
+  expect(html).not.toContain("<script");
 });
 
 test("Sources renders footnotes with derived numbering and ids", async () => {

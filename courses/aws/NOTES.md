@@ -35,7 +35,8 @@
   block vs object (EBS vs S3), durabilidade vs disponibilidade (11 noves). Classes de armazenamento
   DELIBERADAMENTE adiadas para a Lição 08 (é o tópico de S3 que mais cai). Abriu a sessão 19/06 com
   revisão: 3/3 corretas (modelos de implantação atrasado, NLB L4, funil de região) — todos promovidos a
-  estágio 2. PENDENTE: praticar a 07 (mini cheat sheet S3 → vira seção Storage do glossário, ainda não existe).
+  estágio 2. APRENDIDA em 19/06: teach-back escrito completo + fechou durabilidade vs disponibilidade
+  (ver LR-0010). Seção Storage criada no glossário com as palavras dele. S3 na fila de revisão.
 - D3 próximos: **Lição 08 = classes de armazenamento do S3**; depois Lambda/contêineres
   (ECS/Fargate), depois bancos (RDS/DynamoDB) e rede (VPC).
 - D2: Modelo de Responsabilidade Compartilhada (muito cobrado) — Q4 das Lições 04/05 já planta a semente.

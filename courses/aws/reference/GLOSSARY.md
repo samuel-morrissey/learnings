@@ -110,6 +110,34 @@ Vocabulário canônico. Toda lição deve usar estes termos de forma consistente
   fazer no **NLB (L4)**; separar por **rota/URL** num **domínio único** (`/` → front, `/api` → backend)
   exige **ALB (L7)**, porque é preciso ler o HTTP para saber o destino.
 
+## Storage (Domínio 3) — três abstrações
+- **EBS (Elastic Block Store)** — *armazenamento de bloco*: um HD provisionado para **uma** instância
+  EC2 por vez. Por padrão morre com a instância (`delete-on-termination` no disco-raiz), mas pode ser
+  configurado para persistir, ser desanexado e reanexado a outra instância. Não é lugar de dado
+  compartilhado/durável.
+- **EFS (Elastic File System)** — *armazenamento de arquivo*: um **file system compartilhado** que
+  **vários** servidores montam ao mesmo tempo (tipo um NAS).
+- **Amazon S3 (Simple Storage Service)** — *armazenamento de objetos*: guarda objetos isolados e
+  independentes da computação, acessíveis via **API HTTP**. Cresce sem limite; paga-se só pelo que se
+  guarda/transfere (OpEx). É o destino natural de backups, mídia, sites estáticos, data lakes e logs.
+
+### O modelo do S3: bucket · objeto · key
+- **Bucket** — contêiner de topo. **Nome único mundialmente** (todos os clientes AWS dividem o espaço de
+  nomes), mas o conteúdo é **registrado em uma região** (importa para soberania de dados / LGPD).
+- **Objeto** — os **dados + metadados**; até **5 TB** cada. A AWS mantém **cópias em várias AZs** da região.
+- **Key** — o nome completo do objeto dentro do bucket. `bucket name + key` identifica o objeto
+  unicamente (e vira a URL). O namespace é **plano**: a `/` na key é só prefixo (convenção visual), não
+  pasta real.
+
+### Durabilidade vs disponibilidade (pegadinha de prova)
+- **Durabilidade = "não perco"** — garantia de que o dado está salvo e não se perde. S3 Standard:
+  **99,999999999% (11 noves)**, graças às cópias espalhadas pelas AZs.
+- **Disponibilidade = "consigo acessar agora"** — garantia de que o serviço responde quando peço. S3
+  Standard: **~99,99% (4 noves)**. Já é muito, mas mostra que **o acesso pode ser comprometido com mais
+  frequência que a perda do dado** — as duas promessas são diferentes, e os 11 noves são de *durabilidade*.
+- *(Classes de armazenamento — Standard, Intelligent-Tiering, IA, Glacier — trocam custo por velocidade
+  de acesso; detalhadas na Lição 08.)*
+
 ## Termos a definir nas próximas lições
-- Shared Responsibility Model, IAM, S3, VPC, RDS, Free Tier, Well-Architected.
+- Shared Responsibility Model, IAM, VPC, RDS, Free Tier, Well-Architected.
   (Adicionar aqui conforme as lições forem criadas.)

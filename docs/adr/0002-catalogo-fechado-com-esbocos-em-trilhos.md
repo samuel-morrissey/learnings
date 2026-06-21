@@ -1,5 +1,10 @@
 # Catálogo de Componentes com Esboços em trilhos
 
+> **Refinada pela [ADR 0003](./0003-esbocos-como-componentes-astro-em-sketches.md):**
+> o Esboço agora é um Componente Astro em `src/sketches/` (não "JS baunilha, não
+> island"). Os **trilhos** abaixo — tokens, escopo, sem libs/CDN/rede — seguem
+> valendo.
+
 A IA monta cada Aula a partir de um **Catálogo** de Componentes (fonte de verdade
 única: as mesmas definições validam o build e instruem o Pedagogo). O Catálogo
 cobre ~90% do conteúdo previsível. Para o restante, a IA pode criar **Esboços** —

@@ -29,28 +29,37 @@ _Avoid_: biblioteca (ambíguo: reserve para a _implementação_ dos Componentes)
 design system.
 
 **Esboço**:
-Um bloco visual/interativo único de uma Aula, inventado pela IA quando nenhum
-Componente do Catálogo serve. Vive junto da Aula (não no Catálogo), é visualmente
-nos trilhos (usa os design tokens), escopado e auto-contido — JS baunilha, SVG,
-Canvas e CSS, sem bibliotecas externas, CDN ou rede (preserva o offline do PWA).
-_Avoid_: ilha (todo Componente interativo já é uma "island" do Astro), widget.
+Um Componente de uso único, criado para uma única Aula quando nenhum Componente
+do Catálogo serve. Vive fora do Catálogo e não é anunciado no guia; é ligado à
+sua Aula e usado pelo nome, como qualquer Componente. Continua nos trilhos: usa
+os design tokens, é escopado e offline-safe (sem bibliotecas externas, CDN ou
+rede). Quando se prova reutilizável, é promovido a Componente do Catálogo.
+_Avoid_: ilha (todo Componente interativo já é uma "island" do Astro), widget, snippet.
 
 **Solicitação de Componente**:
-O sinal que a IA emite quando julga que um Esboço é reutilizável e merece virar
-Componente do Catálogo. Resolvida por um humano, que promove o Esboço a
+O sinal que o Professor emite quando julga que um Esboço é reutilizável e merece
+virar Componente do Catálogo. Resolvida por um humano, que promove o Esboço a
 Componente e refatora as Aulas que o usavam.
 _Avoid_: pedido, request, ticket.
 
-**Pedagogo**:
+**Professor**:
 O agente que gera Aulas (hoje a skill `teach-v2`). Opera no nível de Cursos,
 Aulas e Componentes-como-vocabulário; é deliberadamente cego à Plataforma (Astro,
-build, repo, `gh`). Quando precisa de um Esboço, delega a um subagente-ponte,
-sinalizando se quer ou não uma Solicitação de Componente.
-_Avoid_: autor, gerador (use "Pedagogo"; `teach-v2` é a implementação atual).
+build, repo, `gh`). Quando precisa de um visual ou interação que o Catálogo não
+tem, delega ao Desenvolvedor, sinalizando se quer ou não uma Solicitação de
+Componente.
+_Avoid_: Pedagogo, autor, gerador (use "Professor"; `teach-v2` é a implementação atual).
+
+**Desenvolvedor**:
+O agente que, a pedido do Professor, cria um Esboço e o entrega pronto para uso.
+É o oposto do Professor no eixo do conhecimento: conhece a Plataforma (Astro) e
+constrói o Esboço nos trilhos. Abre a Solicitação de Componente quando o Professor
+sinaliza que o Esboço é reutilizável.
+_Avoid_: subagente-ponte, dev, programador.
 
 **Plataforma**:
 Este repositório: Astro, a implementação do Catálogo, o build e a publicação no
-GitHub Pages. Renderiza e valida o MDX que o Pedagogo escreve; o Pedagogo nunca
+GitHub Pages. Renderiza e valida o MDX que o Professor escreve; o Professor nunca
 a enxerga.
 _Avoid_: site, app, renderer, frontend.
 

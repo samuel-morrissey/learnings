@@ -2,6 +2,7 @@
 import { getEntry, render } from "astro:content";
 import LessonLayout from "../../../layouts/LessonLayout.astro";
 import { catalog } from "../../../catalog";
+import { sketchesFor } from "../../../sketches/registry";
 import { buildSiteModel } from "../../../lib/site-model";
 import { COURSES_DIR } from "../../../lib/paths";
 
@@ -18,9 +19,10 @@ export function getStaticPaths() {
 const { lesson, courseTitle } = Astro.props;
 const base = import.meta.env.BASE_URL;
 
-const entry = await getEntry("lessons", `${lesson.course}/${lesson.slug}`);
+const lessonId = `${lesson.course}/${lesson.slug}`;
+const entry = await getEntry("lessons", lessonId);
 if (!entry) {
-  throw new Error(`Lesson entry not found: ${lesson.course}/${lesson.slug}`);
+  throw new Error(`Lesson entry not found: ${lessonId}`);
 }
 const { Content } = await render(entry);
 ---
@@ -34,6 +36,7 @@ const { Content } = await render(entry);
   courseHref={`${base}courses/${lesson.course}/`}
 >
   {/* The whole Catalog is provided here, so the MDX uses any Component
-      (<Callout>, <MissionBox>, <CompareCards>…) without importing. */}
-  <Content components={catalog} />
+      (<Callout>, <MissionBox>, <CompareCards>…) without importing. Plus this
+      Lesson's Esboços, scoped to it alone via the registry — never global. */}
+  <Content components={{ ...catalog, ...sketchesFor(lessonId) }} />
 </LessonLayout>

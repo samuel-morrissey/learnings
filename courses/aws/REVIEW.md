@@ -14,3 +14,5 @@
 | ASG/ELB devem abranger VÁRIAS AZs (multi-AZ = alta disponibilidade; não "dentro de uma zona") | [LR-0009](./learning-records/0009-d3-asg-elb-learned-multi-az-correction.md) | 2026-06-18 | 2026-06-21 | 1 |
 | Camada 4 (NLB, IP+porta) vs Camada 7 (ALB, lê HTTP); régua porta vs. rota | [GLOSSARY](./reference/GLOSSARY.md) | 2026-06-18 | 2026-06-28 | 2 |
 | IP = camada 3 (rota/rede), TCP = camada 4 (porta/processo); "TCP/IP" = encapsulamento, não mesma camada | [LR-0008](./learning-records/0008-tcp-ip-layer-confusion.md) | 2026-06-19 | 2026-06-29 | 2 |
+| S3 = object storage; trio bucket (nome único mundial, 1 região) · objeto (dados+metadados, 5 TB, cópias em AZs) · key; acesso HTTP | [LR-0010](./learning-records/0010-d3-s3-object-storage-learned.md) | 2026-06-19 | 2026-06-24 | 1 |
+| Durabilidade ("não perco", 11 noves) vs disponibilidade ("acesso agora", ~4 noves); 11 noves = durabilidade | [LR-0010](./learning-records/0010-d3-s3-object-storage-learned.md) | 2026-06-19 | 2026-06-25 | 1 |
