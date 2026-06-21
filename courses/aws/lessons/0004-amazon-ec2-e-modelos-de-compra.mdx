@@ -1,0 +1,155 @@
+---
+title: "Amazon EC2: o servidor virtual — e como pagar por ele"
+order: 4
+domain: "Domínio 3 — Computação"
+summary: "Bem-vindo ao Domínio 3, o de maior peso na prova. Começamos pelo serviço mais central da AWS: o EC2, o 'servidor na nuvem'. E mais importante: os 5 modelos de compra — porque a pergunta clássica do exame é 'qual modelo casa com esta carga de trabalho?'."
+prerequisites: ["aws/0002-modelos-de-servico-e-implantacao"]
+estMinutes: 8
+---
+
+<MissionBox>
+  EC2 é a peça que aparece em quase todo diagrama AWS. E os modelos de compra são
+  a linguagem de custo na prática: saber dizer _"essa carga é estável, RI ou
+  Savings Plan corta até 72% da conta"_ é exatamente o tipo de decisão defensável
+  que sua missão pede.
+
+  <span slot="meta">⏱️ ~8 min · quiz de 5 questões · pré-requisito: Lição 02 (IaaS).</span>
+</MissionBox>
+
+## O que é o EC2
+
+**Amazon EC2 (Elastic Compute Cloud)** fornece **instâncias** — máquinas virtuais
+redimensionáveis que você cria em minutos e paga conforme o
+uso.<sup><a href="#r1">1</a></sup> Aplicando o teste da Lição 02 (_"de que o
+cliente ainda cuida?"_): no EC2 você ainda cuida do **sistema operacional,
+patches e aplicação** — a AWS cuida do hardware. Logo, EC2 é **IaaS**, o modelo
+de máximo controle.
+
+## Anatomia: 3 peças para montar uma instância
+
+<CompareCards
+  cards={[
+    { tag: "1 · AMI", label: "Amazon Machine Image", description: "O molde: SO + software pré-instalado. Como uma imagem Docker, mas da máquina inteira." },
+    { tag: "2 · Tipo de instância", label: "vCPU + RAM", description: "O tamanho/perfil do hardware. Ex.: t3.micro. Agrupados em famílias." },
+    { tag: "3 · Modelo de compra", label: "Como você paga", description: "On-Demand, Savings Plan, Reserved, Spot ou Dedicated Host." },
+  ]}
+/>
+
+### As 5 famílias de instância (reconhecer, não decorar specs)
+
+- ⚖️ **Propósito geral** — equilíbrio (web apps, servidores comuns)
+- ⚙️ **Otimizada p/ compute** — CPU forte (processamento, jogos, batch pesado)
+- 🧠 **Otimizada p/ memória** — muita RAM (bancos em memória, caches)
+- 💾 **Otimizada p/ storage** — I/O de disco altíssimo (data warehouse)
+- 🎮 **Computação acelerada** — GPU (ML, render, vídeo)
+
+Na prova basta casar a carga com a família: "banco de dados em memória" →
+otimizada para memória; "treinar modelo de ML" → acelerada
+(GPU).<sup><a href="#r2">2</a></sup>
+
+## Os 5 modelos de compra — o coração da lição
+
+Mesma máquina, preços radicalmente diferentes. O que muda é o **compromisso** que
+você assume e a **tolerância a interrupção** da carga:<sup><a href="#r3">3</a></sup>
+
+| Modelo                        | Como funciona                                                                                                          | Quando usar (palavras-gatilho da prova)                                                              |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **On-Demand**                 | Paga por segundo/hora, sem compromisso nenhum. É o padrão.                                                             | Carga **imprevisível ou de curto prazo**; testes; "não sei quanto vou usar".                         |
+| **Savings Plans**             | Compromisso de **gasto por hora** (US$/h) por 1 ou 3 anos. Até **72% off**. Flexível entre famílias, regiões e Lambda/Fargate. | Uso **estável e contínuo**, mas querendo **flexibilidade** de tipo/região.                            |
+| **Reserved Instances (RI)**   | Reserva um **tipo específico** de instância por 1 ou 3 anos. Até **72% off**, menos flexível que Savings Plans.        | Carga **constante e previsível, 24/7** (ex.: banco de dados de produção).                             |
+| **Spot Instances**            | Capacidade ociosa da AWS, até **90% off** — mas a AWS pode **interromper** a instância quando precisar dela de volta.  | Carga **tolerante a falha/interrupção**: batch, render, CI, análise de dados.                        |
+| **Dedicated Host**            | Um **servidor físico inteiro** dedicado a você. O mais caro.                                                           | **Licenças atreladas ao hardware** (BYOL) ou exigência de **isolamento físico** por conformidade.    |
+
+<Callout variant="warn">
+  **Como a prova pergunta:** ela descreve a carga e pede o modelo mais
+  **econômico**. Decida em duas perguntas: **(1) Pode ser interrompida?** Sim →
+  **Spot**. **(2) É estável e de longo prazo?** Sim → **Savings Plans / RI**; Não
+  → **On-Demand**. "Licença própria / isolamento físico" → **Dedicated Host**.
+</Callout>
+
+<Callout variant="info">
+  🧠 **Pegadinha clássica:** Spot é o mais barato, mas _nunca_ é a resposta para
+  cargas que "não podem parar" (site de produção, banco de dados). Barato demais
+  tem um preço: a interrupção.
+</Callout>
+
+## Conectando à sua missão
+
+Pensa num sistema típico da Caravela: a API de produção roda 24/7 e é previsível →
+**Savings Plan ou RI** (até 72% de economia que você pode mostrar ao cliente em
+números). O job noturno que reprocessa relatórios pode falhar e tentar de novo →
+**Spot** (até 90% off). O ambiente de homologação que sobe e desce →
+**On-Demand**. Uma frase como essa numa reunião é exatamente "falar a linguagem
+de custo de cloud".
+
+<Quiz
+  questions={[
+    {
+      prompt: "Uma empresa roda jobs de processamento em lote que podem ser reiniciados sem prejuízo se forem interrompidos. Qual o modelo de compra MAIS econômico?",
+      options: ["On-Demand", "Reserved Instances", "Spot Instances", "Dedicated Host"],
+      answer: 2,
+      explanation: "Carga tolerante a interrupção + busca pelo menor custo = Spot Instances (até 90% de desconto). O risco de interrupção é aceitável para batch.",
+    },
+    {
+      prompt: "Um banco de dados de produção rodará 24/7, com carga estável, pelos próximos 3 anos. Qual opção minimiza o custo?",
+      options: [
+        "On-Demand, para manter flexibilidade",
+        "Reserved Instances de 3 anos",
+        "Spot Instances",
+        "Trocar para Edge Locations",
+      ],
+      answer: 1,
+      explanation: "Carga constante, previsível e de longo prazo (24/7 por 3 anos) é o caso clássico de Reserved Instances (ou Savings Plans) — até 72% de desconto sobre On-Demand.",
+    },
+    {
+      prompt: "Uma empresa tem licenças de software vinculadas ao hardware físico (por socket/core) e precisa usá-las na AWS. Qual opção atende?",
+      options: ["Spot Instances", "Savings Plans", "On-Demand", "Dedicated Host"],
+      answer: 3,
+      explanation: "Licenças por socket/core atreladas ao hardware físico (BYOL) e exigências de isolamento físico são os gatilhos de Dedicated Host — um servidor físico inteiro só seu.",
+    },
+    {
+      prompt: "Numa instância EC2, qual destas responsabilidades é do CLIENTE?",
+      options: [
+        "Aplicar patches no sistema operacional convidado",
+        "Manutenção física dos servidores",
+        "Substituir discos com defeito no data center",
+        "Gerenciar a camada de virtualização (hypervisor)",
+      ],
+      answer: 0,
+      explanation: "No EC2 (IaaS) o cliente ainda administra o sistema operacional, os patches do SO e a aplicação. O hardware, a virtualização e o data center são da AWS.",
+    },
+    {
+      prompt: "O que é uma AMI?",
+      options: [
+        "Um tipo de instância otimizada para memória",
+        "Uma imagem (SO + configuração) usada como molde para criar instâncias",
+        "O contrato de 3 anos das Reserved Instances",
+        "Uma zona de disponibilidade dedicada a máquinas virtuais",
+      ],
+      answer: 1,
+      explanation: "AMI (Amazon Machine Image) é o molde — SO + configuração + software — a partir do qual instâncias são criadas. Permite replicar o mesmo ambiente em segundos.",
+    },
+  ]}
+/>
+
+<AskBox title="Dúvida? Sou seu professor.">
+  Volte ao chat e pergunte. Ex.: `"Qual a diferença prática entre Savings Plans e
+  RI?"`, `"O que acontece exatamente quando uma Spot é interrompida?"` ou
+  `"Dedicated Host vs Dedicated Instance?"`. Depois do quiz, prepara seu **resumo
+  de memória** (cheat sheet sem consulta) dos 5 modelos de compra. A **Lição 05**
+  continua o Domínio 3 com **elasticidade na prática: Auto Scaling e Load
+  Balancing**.
+</AskBox>
+
+<Nav
+  prev={{ href: "../0003-regioes-azs-e-edge-locations/", label: "Lição 03", sub: "Regiões · AZs · Edge Locations" }}
+  next={{ href: "../0005-auto-scaling-e-load-balancing/", label: "Lição 05", sub: "Auto Scaling · Load Balancing" }}
+/>
+
+<Sources
+  items={[
+    { label: "AWS — Amazon EC2", href: "https://aws.amazon.com/ec2/" },
+    { label: "AWS — Tipos de instância EC2", href: "https://aws.amazon.com/ec2/instance-types/" },
+    { label: "AWS — Modelos de preço do EC2", href: "https://aws.amazon.com/ec2/pricing/" },
+  ]}
+/>

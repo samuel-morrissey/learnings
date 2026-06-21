@@ -1,0 +1,138 @@
+---
+title: "Agente, Workflow ou Conversacional?"
+order: 1
+domain: "Domínio 1 — Arquitetura Agêntica"
+summary: "Os três não são tecnologias diferentes — são posições numa mesma régua. A pergunta que define a posição: quem controla o caminho de execução?"
+prerequisites: []
+estMinutes: 7
+---
+
+<MissionBox title="Por que isto primeiro">
+  É o maior domínio do exame (27%) e a base de **4 dos 6 cenários** da prova.
+  Quase toda questão de cenário se resume a "qual arquitetura usar aqui — e por
+  quê?". Acertar essa régua é o que separa reconhecer termos de **arquitetar de
+  verdade** (sua missão).
+
+  <span slot="meta">⏱️ ~7 min · quiz de 3 cenários estilo prova · CCA-F · Domínio 1 (27%).</span>
+</MissionBox>
+
+## A régua: quem dirige?
+
+Anthropic não trata "agente" como rótulo de marketing. A distinção é precisa e
+está no controle do _fluxo_:
+
+<blockquote>
+  <b>Workflows</b> são sistemas onde LLMs e ferramentas são orquestrados por
+  <b>caminhos de código predefinidos</b>. <b>Agentes</b> são sistemas onde o LLM
+  <b>dirige dinamicamente seus próprios processos e uso de ferramentas</b>,
+  mantendo controle sobre como realiza a tarefa.
+  <cite>— Anthropic, "Building Effective Agents" (tradução)</cite>
+</blockquote>
+
+<AutonomySpectrum />
+
+**E o "conversacional"?** É a forma de interação (chat multi-turno, guiado pelo
+humano a cada turno), não uma posição na régua de autonomia. Um chatbot pode ser
+uma chamada única por turno; um agente pode ser totalmente headless (sem chat).
+Não confunda _interface conversacional_ com _autonomia agêntica_ — a prova explora
+essa armadilha.
+
+## O que faz um agente ser agente: o action loop
+
+O coração do agente é um laço. Segundo a Anthropic, agentes são "tipicamente
+apenas **LLMs usando ferramentas com base em feedback do ambiente, num laço**":
+
+1. **Recebe direção** do humano (a tarefa / objetivo).
+2. **Planeja e age** — escolhe e chama uma ferramenta.
+3. **Observa o ground truth** do ambiente: resultado da tool, saída de código, erro.
+4. **Avalia o progresso** e decide: terminar, corrigir, ou agir de novo.
+
+_↑ repete 2→3→4 até concluir (ou pedir ajuda ao humano)_
+
+<Callout variant="ok">
+  **Insight-chave:** sem o passo 3 — **obter ground truth do ambiente a cada
+  passo** — não há agente, há só um LLM "imaginando" que agiu. É o feedback real
+  do ambiente que fecha o laço e dá autonomia confiável. Esse é o detalhe que
+  distingue um agente de um workflow disfarçado.
+</Callout>
+
+## Quando usar cada um
+
+Regra da Anthropic: comece pelo mais simples; só suba na régua quando o problema
+exigir.
+
+| Use…              | Quando                                                                                          | Porque                                          |
+| ----------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **Chamada única** | Tarefa bem definida, um passo. Retrieval + exemplos resolvem.                                    | Mais barato, mais rápido, mais previsível.      |
+| **Workflow**      | Passos conhecidos e fixos; você quer **previsibilidade e consistência**.                         | Caminho roteirizado = comportamento garantido.  |
+| **Agente**        | Problema aberto onde é **difícil prever o nº de passos**; precisa de flexibilidade em escala.    | Só o modelo, em tempo real, sabe o próximo passo. |
+
+<blockquote>
+  Workflows oferecem previsibilidade e consistência para tarefas bem definidas,
+  enquanto agentes são a melhor opção quando flexibilidade e decisão dirigida pelo
+  modelo são necessárias em escala.
+  <cite>— Anthropic, "Building Effective Agents" (tradução)</cite>
+</blockquote>
+
+## Teste rápido (estilo prova)
+
+Cenários como os do exame. Escolha e receba feedback na hora.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Uma empresa precisa, todo dia, ler 5.000 notas fiscais em PDF, extrair 6 campos e gravar num banco. Os campos e o formato nunca mudam. Qual arquitetura?",
+      options: [
+        "Agente — deixe o modelo decidir como processar cada nota.",
+        "Workflow — extrair → validar contra schema → gravar, em caminho fixo.",
+        "Sistema conversacional — um chat onde o operador cola cada PDF.",
+      ],
+      answer: 1,
+      explanation: "Caminho fixo e repetitivo → workflow (extrair→validar→gravar). Agente seria overkill e menos previsível; um chat não escala para 5.000/dia.",
+    },
+    {
+      prompt: "Um 'agente de pesquisa' recebe uma pergunta vaga, e o número de buscas, leituras e refinamentos varia muito conforme o tema. Qual é o sinal mais forte de que isto pede um agente, não um workflow?",
+      options: [
+        "Porque usa um LLM e faz chamadas de ferramenta.",
+        "Porque tem uma interface de chat com o usuário.",
+        "Porque é difícil prever de antemão o número de passos necessários.",
+      ],
+      answer: 2,
+      explanation: "O sinal definidor de agente é não dar para roteirizar: o nº de passos é imprevisível. Usar LLM+tool, ou ter um chat, não definem agência.",
+    },
+    {
+      prompt: "Um colega diz: 'montei um agente — ele chama a API de clima e me devolve a previsão.' É uma única chamada de tool, sem laço nem observação de resultado para decidir o próximo passo. O que está errado na afirmação?",
+      options: [
+        "Sem o laço de observar o ground truth e decidir o próximo passo, é uma chamada única com tool — não um agente.",
+        "Nada — qualquer uso de ferramenta já caracteriza um agente.",
+        "Está errado só porque um agente precisa de múltiplas ferramentas diferentes.",
+      ],
+      answer: 0,
+      explanation: "Agente exige o laço: agir → observar o resultado real → decidir o próximo passo. Uma tool call isolada é chamada única. O nº de ferramentas é irrelevante.",
+    },
+  ]}
+/>
+
+<Callout variant="info">
+  💬 **Eu sou seu professor.** Travou em algo, discorda de uma resposta, ou quer
+  um exemplo do seu próprio trabalho mapeado nessa régua? Me pergunte — é assim que
+  a dúvida vira aprendizado.
+</Callout>
+
+<AskBox title="Próximo passo (prática)">
+  Entender ≠ aprender. Para fixar, volte ao chat e me mande sua **pseudo-cola**:
+  em ~5 linhas, com **suas próprias palavras**, explique a régua
+  agente/workflow/chamada-única e o que define o action loop. É na compressão que
+  o aprendizado acontece — e dela sai sua primeira entrada de glossário.
+</AskBox>
+
+<Nav
+  next={{ href: "../0002-padroes-de-workflow/", label: "Lição 02", sub: "Os 5 padrões de workflow" }}
+/>
+
+<Sources
+  items={[
+    { label: "Anthropic — Building Effective Agents (fonte primária deste tema)", href: "https://www.anthropic.com/engineering/building-effective-agents" },
+    { label: "CCA Exam — 5 Domains & 6 Scenarios (mapa do exame)", href: "https://dev.to/aws-builders/the-claude-certified-architect-exam-5-domains-6-scenarios-and-everything-you-need-to-know-4le3" },
+  ]}
+/>

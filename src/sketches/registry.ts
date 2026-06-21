@@ -1,4 +1,11 @@
 import BucketObjectKey from "./BucketObjectKey.astro";
+import CapexOpex from "./CapexOpex.astro";
+import ResponsibilitySpectrum from "./ResponsibilitySpectrum.astro";
+import RegionAzMap from "./RegionAzMap.astro";
+import ScalingArchitecture from "./ScalingArchitecture.astro";
+import OsiStack from "./OsiStack.astro";
+import AutonomySpectrum from "./AutonomySpectrum.astro";
+import PatternFlow from "./PatternFlow.astro";
 
 /**
  * The Esboço registry — the escape hatch's wiring.
@@ -13,7 +20,14 @@ import BucketObjectKey from "./BucketObjectKey.astro";
  * like a Catalog Component, but the binding is scoped to this Lesson.
  */
 export const sketches: Record<string, Record<string, unknown>> = {
+  "aws/0001-o-que-e-a-nuvem-e-por-que-importa": { CapexOpex },
+  "aws/0002-modelos-de-servico-e-implantacao": { ResponsibilitySpectrum },
+  "aws/0003-regioes-azs-e-edge-locations": { RegionAzMap },
+  "aws/0005-auto-scaling-e-load-balancing": { ScalingArchitecture },
+  "aws/0006-bonus-camadas-de-rede-l4-vs-l7": { OsiStack },
   "aws/0007-amazon-s3-object-storage": { BucketObjectKey },
+  "claude/0001-agente-workflow-conversacional": { AutonomySpectrum },
+  "claude/0002-padroes-de-workflow": { PatternFlow },
 };
 
 /** The Esboços bound to a Lesson, or an empty map when it declares none. */

@@ -1,0 +1,224 @@
+---
+title: "Os 5 padrões de workflow"
+order: 2
+domain: "Domínio 1 — Arquitetura Agêntica"
+summary: "Workflow tem caminho fixo — você já sabe. Mas quais caminhos valem a pena? A Anthropic nomeia cinco. Saber escolher entre eles é metade das questões de cenário."
+prerequisites: ["claude/0001-agente-workflow-conversacional"]
+estMinutes: 8
+---
+
+<Callout variant="info">
+  ↩︎ **Da Lição 01:** num _workflow_, é o **código** que controla o caminho (não
+  o modelo). Estes 5 padrões são os "caminhos de código" mais úteis.
+</Callout>
+
+<MissionBox title="Por que importa">
+  Os cenários da prova (extração estruturada, pipeline de pesquisa, suporte) quase
+  sempre têm um padrão "certo". Reconhecê-lo na hora — e saber por que os outros
+  não servem — é exatamente a competência de arquiteto que a missão pede.
+
+  <span slot="meta">⏱️ ~8 min · quiz de 4 cenários · pré-requisito: Lição 01.</span>
+</MissionBox>
+
+## O princípio antes dos padrões
+
+<blockquote>
+  Encontramos sucesso consistente usando padrões simples e componíveis, em vez de
+  frameworks complexos. Comece com o mais simples possível; só aumente a
+  complexidade quando ela claramente melhorar o resultado.
+  <cite>— Anthropic, "Building Effective Agents" (paráfrase)</cite>
+</blockquote>
+
+Os 5 são **blocos componíveis**: você combina vários num sistema real. Vamos do
+mais simples ao mais autônomo.
+
+### 1 · Encadeamento de prompts <small>(prompt chaining)</small>
+
+Decompõe a tarefa numa **sequência fixa** de passos; cada chamada LLM processa a
+saída da anterior.
+
+<PatternFlow
+  stages={[
+    { nodes: [{ label: "Entrada" }] },
+    { nodes: [{ label: "LLM 1" }] },
+    { nodes: [{ label: "[gate?]", variant: "gray" }] },
+    { nodes: [{ label: "LLM 2" }] },
+    { nodes: [{ label: "Saída" }] },
+  ]}
+/>
+
+<Callout variant="info">
+  **Use quando:** a tarefa se divide em subpassos limpos e fixos. Trocar precisão
+  por latência (mais passos, cada um mais fácil). Ex.: gerar um outline → escrever
+  a partir dele. Pode ter um _gate_ programático entre passos.
+</Callout>
+
+### 2 · Roteamento <small>(routing)</small>
+
+Uma chamada **classifica** a entrada e a direciona para uma tarefa especializada
+de followup.
+
+<PatternFlow
+  stages={[
+    { nodes: [{ label: "Classificador", variant: "alt" }] },
+    { nodes: [
+      { label: "Rota A (ex.: reembolso)" },
+      { label: "Rota B (ex.: técnico)" },
+      { label: "Rota C (ex.: vendas)" },
+    ] },
+  ]}
+/>
+
+<Callout variant="info">
+  **Use quando:** há categorias distintas de entrada, melhor tratadas
+  separadamente, e a classificação é confiável. Permite prompts (ou modelos)
+  especializados por rota. Ex.: triagem de tickets de suporte.
+</Callout>
+
+### 3 · Paralelização <small>(parallelization)</small>
+
+Roda várias chamadas **ao mesmo tempo** e agrega. Dois sabores: **sectioning**
+(subtarefas independentes) e **voting** (mesma tarefa N vezes p/ diversidade/
+consenso).
+
+<PatternFlow
+  stages={[
+    { nodes: [{ label: "Entrada" }] },
+    { nodes: [
+      { label: "LLM (parte 1)" },
+      { label: "LLM (parte 2)" },
+      { label: "LLM (parte 3)" },
+    ] },
+    { nodes: [{ label: "Agregador", variant: "alt" }] },
+  ]}
+/>
+
+<Callout variant="info">
+  **Use quando:** subtarefas são independentes (ganha velocidade) ou você quer
+  várias tentativas/visões para votar (ganha confiança). Ex.: revisar código por
+  segurança, estilo e perf em paralelo.
+</Callout>
+
+### 4 · Orquestrador-trabalhadores <small>(orchestrator-workers)</small>
+
+Um LLM central **decompõe a tarefa dinamicamente**, delega a LLMs trabalhadores e
+**sintetiza** os resultados.
+
+<PatternFlow
+  stages={[
+    { nodes: [{ label: "Orquestrador", variant: "alt" }] },
+    { nodes: [
+      { label: "Worker 1" },
+      { label: "Worker 2" },
+      { label: "Worker N (?)", variant: "gray" },
+    ] },
+    { nodes: [{ label: "Síntese", variant: "alt" }] },
+  ]}
+/>
+
+<Callout variant="info">
+  **Use quando:** você **não sabe de antemão** quantos/quais subtarefas existem —
+  o orquestrador decide em runtime. Ex.: pesquisa multi-fonte, mudança de código em
+  vários arquivos.
+</Callout>
+
+<Callout variant="warn">
+  **Nuance de prova — Paralelização vs. Orquestrador-trabalhadores:** na
+  paralelização as subtarefas são **predefinidas por você**; no
+  orquestrador-trabalhadores é o **modelo** que define as subtarefas em tempo de
+  execução. Por isso este padrão já beira o _agente_ — é o degrau entre workflow e
+  agente.
+</Callout>
+
+### 5 · Avaliador-otimizador <small>(evaluator-optimizer)</small>
+
+Uma chamada **gera** uma resposta; outra **avalia e dá feedback**, num laço, até
+passar no critério.
+
+<PatternFlow
+  stages={[
+    { nodes: [{ label: "Gerador" }] },
+    { nodes: [{ label: "Avaliador", variant: "alt" }] },
+    { nodes: [{ label: "aprovado? → Saída", variant: "gray" }] },
+    { nodes: [{ label: "se não: refina" }], arrow: "↺" },
+  ]}
+/>
+
+<Callout variant="info">
+  **Use quando:** existe um critério de qualidade claro **e** a crítica iterativa
+  agrega valor mensurável. Ex.: tradução literária refinada, busca que precisa de
+  várias rodadas. _Atenção:_ é um laço — não confunda com agente. Aqui o laço é
+  **fixo** (gerar↔avaliar); no agente, o modelo decide o que fazer no laço.
+</Callout>
+
+## Heurística de seleção
+
+| Pergunta                                              | Se sim →                                       |
+| ----------------------------------------------------- | ---------------------------------------------- |
+| Passos fixos, cada um alimentando o próximo?          | **Encadeamento**                               |
+| Entradas caem em categorias distintas?                | **Roteamento**                                 |
+| Subtarefas independentes (ou quer várias tentativas)? | **Paralelização**                              |
+| Subtarefas só conhecidas em runtime?                  | **Orquestrador-trabalhadores**                 |
+| Critério de qualidade claro + refino iterativo ajuda? | **Avaliador-otimizador**                       |
+| Nº de passos imprevisível, modelo dirige tudo?        | **→ não é workflow: é agente (L03)**           |
+
+## Teste rápido (estilo prova)
+
+Identifique o padrão. Feedback na hora.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Tickets de suporte chegam misturados: reembolso, bug técnico e dúvida de vendas. Cada tipo tem um prompt e base de conhecimento próprios. Qual padrão estrutura a entrada do sistema?",
+      options: ["Encadeamento de prompts", "Roteamento", "Avaliador-otimizador"],
+      answer: 1,
+      explanation: "Roteamento: uma classificação inicial manda cada ticket para a rota especializada (reembolso/técnico/vendas). Encadeamento é sequência fixa; avaliador-otimizador é laço de qualidade.",
+    },
+    {
+      prompt: "Um sistema de pesquisa recebe um tema amplo. Quantas fontes consultar e quais sub-perguntas investigar só dá para saber depois de começar — varia por tema. Um LLM central decide as sub-perguntas e junta tudo. Qual padrão?",
+      options: ["Paralelização (sectioning)", "Encadeamento de prompts", "Orquestrador-trabalhadores"],
+      answer: 2,
+      explanation: "Orquestrador-trabalhadores: as subtarefas só são conhecidas em runtime e um LLM central decide e sintetiza. Não é paralelização (subtarefas seriam predefinidas) nem encadeamento.",
+    },
+    {
+      prompt: "Para revisar um PR, você dispara simultaneamente três checagens fixas e sempre as mesmas — segurança, estilo e performance — e junta os comentários. Qual padrão?",
+      options: ["Paralelização (sectioning)", "Orquestrador-trabalhadores", "Roteamento"],
+      answer: 0,
+      explanation: "Paralelização (sectioning): subtarefas fixas e independentes rodando ao mesmo tempo, depois agregadas. Como são sempre as mesmas três, você as predefiniu — não é orquestrador.",
+    },
+    {
+      prompt: "Qual frase distingue corretamente paralelização de orquestrador-trabalhadores?",
+      options: [
+        "Paralelização usa vários modelos; orquestrador usa só um.",
+        "Paralelização é agêntica; orquestrador é um workflow.",
+        "Na paralelização as subtarefas são predefinidas por você; no orquestrador o modelo as define em runtime.",
+      ],
+      answer: 2,
+      explanation: "O eixo é quem define as subtarefas: você (predefinidas → paralelização) vs. o modelo em runtime (→ orquestrador). Nº de modelos e 'ser agêntico' não são o critério.",
+    },
+  ]}
+/>
+
+<Callout variant="info">
+  💬 **Sou seu professor.** Quer mapear um sistema real seu (ou um dos 6 cenários
+  da prova) nesses padrões — inclusive combinando vários? Me chama no chat.
+</Callout>
+
+<AskBox title="Próximo passo (prática)">
+  Para transformar entendimento em aprendizado, me mande no chat sua
+  **pseudo-cola**: liste os 5 padrões com **uma linha sua** para cada (o gatilho
+  de "quando usar"), e responda — **o que separa paralelização de
+  orquestrador-trabalhadores?** É na compressão que fixa, e dela saem as entradas
+  de glossário.
+</AskBox>
+
+<Nav
+  prev={{ href: "../0001-agente-workflow-conversacional/", label: "Lição 01", sub: "Agente · Workflow · Conversacional" }}
+/>
+
+<Sources
+  items={[
+    { label: "Anthropic — Building Effective Agents (definições dos 5 padrões)", href: "https://www.anthropic.com/engineering/building-effective-agents" },
+    { label: "CCA Exam — 5 Domains & 6 Scenarios", href: "https://dev.to/aws-builders/the-claude-certified-architect-exam-5-domains-6-scenarios-and-everything-you-need-to-know-4le3" },
+  ]}
+/>

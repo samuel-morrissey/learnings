@@ -1,0 +1,142 @@
+---
+title: "A geografia da AWS: Regiões, Zonas e a borda"
+order: 3
+domain: "Domínio 1 — Cloud Concepts"
+summary: "'Tornar-se global em minutos' só funciona por causa da forma como a AWS organiza o mundo fisicamente. Entender essa hierarquia é o que te deixa responder 'onde eu coloco minha aplicação e por quê?'."
+prerequisites: ["aws/0001-o-que-e-a-nuvem-e-por-que-importa"]
+estMinutes: 7
+---
+
+<MissionBox>
+  Escolher a região errada custa latência, dinheiro e às vezes conformidade legal
+  (dados que não podem sair do país). Como líder técnico, essa é uma das primeiras
+  decisões de arquitetura — e uma das mais cobradas na prova.
+
+  <span slot="meta">⏱️ ~7 min · quiz de 5 questões · fecha o Domínio 1 · pré-requisito: Lição 01.</span>
+</MissionBox>
+
+## A hierarquia, de fora para dentro
+
+Pense em caixas dentro de caixas: **Região** contém **Zonas de Disponibilidade**,
+que contêm **data centers**. As **Edge Locations** ficam fora dessa hierarquia,
+espalhadas perto dos usuários.<sup><a href="#r1">1</a></sup>
+
+<RegionAzMap />
+
+## Os três conceitos
+
+| Conceito                            | O que é                                                                                                  | Por que existe                                                                                                |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Região (Region)**                 | Área geográfica nomeada (ex.: `sa-east-1` São Paulo, `us-east-1` N. Virginia). Contém múltiplas AZs.     | Escolher _onde no mundo_ seus dados/apps ficam: latência, custo e **conformidade legal**.                    |
+| **Zona de Disponibilidade (AZ)**    | Um ou mais data centers isolados dentro de uma região. Uma região tem várias (normalmente 3+).           | **Alta disponibilidade:** se uma AZ cai (incêndio, enchente), as outras continuam. Você distribui entre AZs. |
+| **Edge Location (borda)**           | Pontos de presença espalhados (bem mais numerosos que regiões), usados por CDN/CloudFront e DNS/Route 53. | **Baixa latência:** entrega conteúdo em cache _pertinho_ do usuário final, sem ir até a região.              |
+
+<Callout variant="warn">
+  **Distinção que cai muito:** _Região_ resolve **conformidade / onde os dados
+  moram**. _Múltiplas AZs_ resolvem **alta disponibilidade / tolerância a falha**.
+  _Edge Locations_ resolvem **latência de entrega ao usuário**. Casou o problema
+  com o nível certo → acertou a questão.
+</Callout>
+
+## Como escolher uma Região (4 fatores)
+
+A AWS lista quatro critérios — uma checklist perfeita para decisões de
+liderança:<sup><a href="#r2">2</a></sup>
+
+- ⚖️ **Conformidade** — leis que exigem dados no país (ex.: LGPD)
+- ⚡ **Proximidade/latência** — perto dos usuários
+- 🧩 **Serviços disponíveis** — nem todo serviço existe em toda região
+- 💲 **Preço** — varia de região para região
+
+<Callout variant="info">
+  🧠 **Mnemônico:** **C-P-S-P** → **C**onformidade, **P**roximidade,
+  **S**erviços, **P**reço.
+</Callout>
+
+## Conectando à sua missão
+
+Num projeto da Caravela com clientes no Brasil, a resposta defensável é
+normalmente **sa-east-1 (São Paulo)**: menor latência, e dados em solo brasileiro
+ajudam na conformidade (LGPD). E para garantir que o sistema não caia se um data
+center falhar, você espalha em **múltiplas AZs**. Isso é arquitetura básica de
+produção — e agora você sabe justificar.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Você quer que sua aplicação continue funcionando mesmo se um data center inteiro falhar. Qual a abordagem correta?",
+      options: [
+        "Usar uma Edge Location maior",
+        "Concentrar tudo em uma única AZ robusta",
+        "Distribuir a aplicação entre múltiplas Zonas de Disponibilidade",
+        "Usar várias Regiões em continentes diferentes obrigatoriamente",
+      ],
+      answer: 2,
+      explanation: "Distribuir a aplicação entre várias AZs protege contra a falha de um data center inteiro — é a base da alta disponibilidade dentro de uma região.",
+    },
+    {
+      prompt: "Para qual finalidade as Edge Locations são usadas principalmente?",
+      options: [
+        "Hospedar bancos de dados de produção",
+        "Entregar conteúdo em cache perto do usuário final, com baixa latência",
+        "Substituir Zonas de Disponibilidade que falharam",
+        "Armazenar backups de longo prazo",
+      ],
+      answer: 1,
+      explanation: "Edge Locations existem para entregar conteúdo em cache pertinho do usuário (CloudFront), reduzindo latência — não para hospedar a aplicação inteira.",
+    },
+    {
+      prompt: "Uma lei exige que os dados dos clientes permaneçam fisicamente no Brasil. Qual decisão da AWS atende a isso?",
+      options: [
+        "Escolher a Região geográfica correta (ex.: sa-east-1, São Paulo)",
+        "Adicionar mais Zonas de Disponibilidade",
+        "Usar mais Edge Locations no Brasil",
+        "Mudar de IaaS para SaaS",
+      ],
+      answer: 0,
+      explanation: "Uma exigência legal de que os dados permaneçam no país é resolvida escolhendo a Região geográfica adequada (ex.: São Paulo).",
+    },
+    {
+      prompt: "Qual afirmação descreve corretamente a hierarquia da infraestrutura global da AWS?",
+      options: [
+        "Uma AZ contém várias Regiões",
+        "Uma Edge Location contém várias Regiões",
+        "Um data center contém várias Regiões",
+        "Uma Região contém várias AZs, e cada AZ contém um ou mais data centers",
+      ],
+      answer: 3,
+      explanation: "A hierarquia é: Região contém Zonas de Disponibilidade, que contêm um ou mais data centers.",
+    },
+    {
+      prompt: "Qual destes NÃO é um dos fatores recomendados pela AWS para escolher uma Região?",
+      options: [
+        "Conformidade legal / governança de dados",
+        "A quantidade de funcionários da empresa",
+        "Latência / proximidade dos usuários",
+        "Preço e disponibilidade de serviços na região",
+      ],
+      answer: 1,
+      explanation: "Os 4 fatores oficiais são Conformidade, Proximidade/latência, Serviços disponíveis e Preço (C-P-S-P). 'Quantidade de funcionários' não é critério.",
+    },
+  ]}
+/>
+
+<AskBox title="Dúvida? Sou seu professor.">
+  Volte ao chat e pergunte. Ex.: `"Qual a diferença entre AZ e data center na
+  prática?"`, `"O que é uma Local Zone?"` ou `"Me dá um cenário multi-região
+  real"`. Você acabou de **fechar o Domínio 1 (24% da prova)**! 🎉 Quando quiser,
+  peça a **Lição 04** — começamos o **Domínio 3 (34%, o maior)** com o serviço
+  mais central da AWS: o **Amazon EC2 (compute)**.
+</AskBox>
+
+<Nav
+  prev={{ href: "../0002-modelos-de-servico-e-implantacao/", label: "Lição 02", sub: "IaaS · PaaS · SaaS · implantação" }}
+  next={{ href: "../0004-amazon-ec2-e-modelos-de-compra/", label: "Lição 04", sub: "Amazon EC2 · modelos de compra" }}
+/>
+
+<Sources
+  items={[
+    { label: "AWS — Global Infrastructure (Regiões, AZs, Edge)", href: "https://aws.amazon.com/about-aws/global-infrastructure/" },
+    { label: "AWS — Overview of AWS: Global Infrastructure", href: "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/global-infrastructure.html" },
+  ]}
+/>

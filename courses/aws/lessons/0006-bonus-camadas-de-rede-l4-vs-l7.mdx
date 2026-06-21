@@ -1,0 +1,180 @@
+---
+title: "Camadas de rede: o mapa completo, com foco em L4 e L7"
+order: 6
+domain: "Bônus — Camadas de rede"
+summary: "A Lição 05 jogou dois rótulos sem explicar: ALB = camada 7 e NLB = camada 4. Esta bônus mostra as 7 camadas inteiras — mas o destino é claro: entender por que essas duas decidem a escolha do load balancer."
+prerequisites: ["aws/0005-auto-scaling-e-load-balancing"]
+estMinutes: 9
+---
+
+<MissionBox title="Por que esta bônus?">
+  "Camada 4/7" é jargão de rede que trava muita gente de software. Ter o mapa todo
+  na cabeça — e saber que só duas camadas importam para o balanceador — te dá
+  vocabulário para conversar com qualquer pessoa de infra de igual pra igual,
+  exatamente a autoridade técnica que a sua missão busca.
+
+  <span slot="meta">⏱️ ~9 min · quiz de 5 questões · pré-requisito: Lição 05 (ELB).</span>
+</MissionBox>
+
+<Callout variant="warn">
+  **O que cai na prova:** o CLF-C02 cobra de verdade só **camada 4 (NLB)** e
+  **camada 7 (ALB)**. As outras 5 camadas aqui são _fluência fundamental_ para sua
+  missão de liderança — aprenda o mapa, mas não sue para decorar a lista.
+</Callout>
+
+## A ideia: camadas de abstração que se embrulham
+
+A rede é organizada em **camadas**, igual ao software: cada uma esconde a de
+baixo. O modelo de referência é o **OSI**, com 7 camadas. Sua mensagem **desce** a
+pilha no remetente — cada camada adiciona seu próprio embrulho (cabeçalho) —
+viaja como sinal físico, e **sobe** a pilha no destino, sendo desembrulhada camada
+a camada.<sup><a href="#r1">1</a></sup>
+
+_⬇️ remetente: aplicação → … → bits no fio · ⬆️ destino: bits → … → aplicação_
+
+## As 7 camadas, cada uma como uma pergunta
+
+Não decore a ordem — siga a lógica: cada camada responde **uma pergunta**
+necessária para a mensagem viajar e ser entendida. As duas destacadas
+(`load balancer`) são as que você vai usar de verdade.
+
+<OsiStack />
+
+<Callout variant="info">
+  🧠 **O presente que a nuvem te dá:** on-premises você cuidaria das camadas 1 e 2
+  (cabos, switches). Na AWS, **1 e 2 somem para você** e você opera da **camada 3
+  (VPC)** para cima. É a vantagem "parar de manter data centers" vista pela lente
+  das camadas.
+</Callout>
+
+## O foco: camada 4 vs camada 7 (NLB vs ALB)
+
+De todas as 7, só duas decidem o tipo de load balancer — porque a pergunta é uma
+só: **quão fundo o balanceador abre o pacote?**
+
+<Callout variant="info">
+  📨 **Analogia do envelope.** A **camada 4** é o **endereço escrito no envelope**
+  (IP + porta): dá para entregar _sem abrir_. A **camada 7** é **abrir o envelope
+  e ler a carta** (o caminho da URL, o cabeçalho `Host`, o cookie) para então
+  decidir a rota.
+</Callout>
+
+|                    | NLB — camada 4                                  | ALB — camada 7                                            |
+| ------------------ | ----------------------------------------------- | --------------------------------------------------------- |
+| **O que enxerga**  | IP + porta (não abre o envelope)                | Conteúdo HTTP: URL, host, headers, cookies                |
+| **Pode rotear por…** | destino TCP/UDP                               | **caminho** (`/api` → grupo X), **host**, método…         |
+| **Velocidade**     | ⚡ extrema — milhões de req/s, latência mínima  | um pouco mais de overhead (ele lê e interpreta)           |
+| **Protocolo**      | TCP / UDP (qualquer coisa)                      | HTTP / HTTPS (web)                                        |
+| **Use quando…**    | performance/latência extrema, TCP não-HTTP, IP estático | app web, roteamento por conteúdo, redirecionar/autenticar |
+
+<Callout variant="ok">
+  **A regra de decisão em uma frase:** precisa que o balanceador _leia o HTTP_
+  para decidir (rotear `/api` e `/site` para grupos diferentes)? → **ALB (L7)**. Só
+  precisa de velocidade bruta encaminhando pacotes? → **NLB (L4)**. Mais
+  inteligência custa um pouco de overhead; menos inteligência rende performance
+  máxima.
+</Callout>
+
+<Callout variant="warn">
+  **Cuidado com a intuição "L7 é melhor que L4":** não é melhor, é _diferente_. O
+  NLB é superior justamente onde você _não_ quer que ninguém abra o envelope —
+  latência mínima e throughput gigante. Quem decide é o trabalho, não o número da
+  camada. (Mesma lógica do RI vs Savings Plans: não existe "o melhor", existe "o
+  certo para a carga".)
+</Callout>
+
+### OSI vs. o modelo real (TCP/IP)
+
+O OSI é didático (7 camadas). A internet roda o **TCP/IP**, mais enxuto (~4
+camadas). "Camada 4" e "camada 7" sobrevivem no dia a dia porque existem nos dois
+modelos e batem com o que os balanceadores fazem.<sup><a href="#r2">2</a></sup>
+
+## Conectando à sua missão
+
+Quando alguém perguntar _"por que ALB e não NLB?"_, a resposta defensável não é
+"porque é o padrão" — é: **"nosso tráfego é HTTP e precisamos rotear por caminho
+de URL para microsserviços diferentes; isso exige um balanceador de camada 7"**. E
+numa investigação de incidente, a camada vira um localizador: "o ping responde (L3
+ok) mas a porta recusa (L4)". Falar nessa régua é decidir e diagnosticar de igual
+pra igual com infra.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Você quer mandar /api para um grupo de instâncias e /site para outro, com base na URL. Que load balancer faz isso?",
+      options: [
+        "NLB — camada 4",
+        "ALB — camada 7",
+        "Qualquer um, é igual",
+        "Nenhum balanceador roteia por URL",
+      ],
+      answer: 1,
+      explanation: "Rotear com base no CAMINHO da URL (/api vs /site) exige ler o conteúdo HTTP — isso é camada 7, trabalho do ALB.",
+    },
+    {
+      prompt: "O que caracteriza um balanceador de camada 4 (NLB)?",
+      options: [
+        "Lê cabeçalhos HTTP e cookies para decidir a rota",
+        "Só funciona com HTTPS",
+        "Encaminha por IP e porta (TCP/UDP), sem ler o conteúdo",
+        "Armazena conteúdo estático perto do usuário",
+      ],
+      answer: 2,
+      explanation: "Camada 4 (transporte) trabalha com IP + porta via TCP/UDP — encaminha o pacote sem abrir/ler o conteúdo da aplicação.",
+    },
+    {
+      prompt: "Um serviço de jogos usa TCP puro e exige a menor latência possível, com milhões de conexões. Qual balanceador?",
+      options: [
+        "NLB — camada 4",
+        "ALB — camada 7",
+        "GWLB — para HTTP",
+        "Nenhum suporta TCP",
+      ],
+      answer: 0,
+      explanation: "Latência mínima e throughput altíssimo com TCP puro é o ponto forte do NLB (camada 4): ele só encaminha pacotes, sem o overhead de interpretar HTTP.",
+    },
+    {
+      prompt: "Roteamento por endereço IP entre redes diferentes (o território da VPC) acontece em qual camada?",
+      options: [
+        "Camada 7 (Aplicação)",
+        "Camada 4 (Transporte)",
+        "Camada 3 (Rede)",
+        "Camada 1 (Física)",
+      ],
+      answer: 2,
+      explanation: "Roteamento por endereço IP entre redes diferentes é a camada 3 (Rede). Na AWS, é o território da VPC — uma camada abaixo do que os load balancers usam.",
+    },
+    {
+      prompt: "Na analogia do envelope, qual frase descreve a diferença L4 vs L7?",
+      options: [
+        "L4 abre a carta; L7 lê só o endereço",
+        "Ambas abrem a carta sempre",
+        "Nenhuma olha o envelope",
+        "L4 lê só o endereço do envelope; L7 abre e lê a carta",
+      ],
+      answer: 3,
+      explanation: "Na analogia: camada 4 = ler só o endereço do envelope (IP+porta) e entregar; camada 7 = abrir e ler a carta (URL/headers) para decidir.",
+    },
+  ]}
+/>
+
+<AskBox>
+  Volte ao chat e me mande, **com suas palavras**, um mini cheat sheet de **L4 vs
+  L7**: o que cada camada enxerga e a regra de decisão ALB vs NLB. Bônus: liste as
+  7 camadas com a pergunta de cada uma. Não vale colar daqui — comprimir do seu
+  jeito é o que fixa; eu corrijo e viramos o verbete do glossário. Dúvidas valem:
+  `"por que o NLB pode ter IP estático?"` ou `"onde entra o HTTPS/TLS nessas
+  camadas?"`.
+</AskBox>
+
+<Nav
+  prev={{ href: "../0005-auto-scaling-e-load-balancing/", label: "Lição 05", sub: "Auto Scaling · ELB" }}
+  next={{ href: "../0007-amazon-s3-object-storage/", label: "Lição 07", sub: "Amazon S3 · object storage" }}
+/>
+
+<Sources
+  items={[
+    { label: "Cloudflare — O modelo OSI", href: "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/" },
+    { label: "AWS — What is the OSI model?", href: "https://aws.amazon.com/what-is/osi-model/" },
+  ]}
+/>

@@ -1,0 +1,137 @@
+---
+title: "Quanto você controla, quanto a AWS controla"
+order: 2
+domain: "Domínio 1 — Cloud Concepts"
+summary: "A nuvem não é 'tudo ou nada'. Existe um espectro de responsabilidade: do 'eu gerencio quase tudo' até o 'só uso, alguém cuida do resto'. Saber onde cada serviço cai nesse espectro é o que te deixa escolher a ferramenta certa."
+prerequisites: ["aws/0001-o-que-e-a-nuvem-e-por-que-importa"]
+estMinutes: 8
+---
+
+<MissionBox>
+  Como líder técnico você vai precisar decidir _"subo um servidor e configuro
+  tudo, ou uso uma plataforma pronta?"_. Essa escolha é exatamente IaaS vs PaaS
+  vs SaaS. Errar nisso custa tempo e dinheiro do time.
+
+  <span slot="meta">⏱️ ~8 min · quiz de 5 questões · pré-requisito: Lição 01.</span>
+</MissionBox>
+
+## A grande ideia: um botão de controle deslizante
+
+Imagine um controle deslizante. Num extremo, **você** gerencia tudo (como num
+servidor próprio). No outro, a **AWS/fornecedor** gerencia tudo e você só consome.
+Os três modelos de serviço são três posições nesse
+deslizante.<sup><a href="#r1">1</a></sup>
+
+<ResponsibilitySpectrum />
+
+## Os três modelos, com exemplos AWS
+
+| Modelo   | Você cuida de…                                                  | Bom quando…                                              | Exemplo                                  |
+| -------- | --------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------- |
+| **IaaS** | SO, patches, runtime, app — controle máximo da infra            | Você precisa controlar o ambiente (SO, rede, tuning)     | **Amazon EC2** (máquina virtual "crua")  |
+| **PaaS** | Só o código da aplicação — a plataforma cuida de SO/escala/deploy | Você quer só publicar o app sem gerenciar servidor       | **AWS Elastic Beanstalk**, **AWS Lambda** |
+| **SaaS** | Nada de infra — você só usa o software pronto                   | É uma necessidade comum já resolvida por um produto      | **Amazon WorkMail**, Gmail, Salesforce   |
+
+<Callout variant="warn">
+  **Atalho de prova:** a pergunta-chave é _"de que o cliente ainda precisa
+  cuidar?"_. Cuida do SO → **IaaS**. Cuida só do código → **PaaS**. Não cuida de
+  nada, só usa → **SaaS**.
+</Callout>
+
+<Callout variant="info">
+  🍕 **Analogia famosa (Pizza as a Service):** fazer pizza em casa do zero =
+  _on-premises_. Comprar a massa pré-pronta e assar = _IaaS_. Pedir delivery e
+  comer no seu prato/mesa = _PaaS_. Sair para comer no restaurante = _SaaS_. Em
+  todos você come pizza; muda quanto _você_ faz.
+</Callout>
+
+## Modelos de implantação (deployment): onde a coisa roda
+
+Outro eixo, não confunda com o anterior. Aqui a pergunta é _onde_ a
+infraestrutura vive.<sup><a href="#r2">2</a></sup>
+
+<CompareCards
+  cards={[
+    { label: "☁️ Cloud (all-in)", description: "Tudo roda na nuvem. Nasce na nuvem ou migrou 100%." },
+    { label: "🔗 Híbrido", description: "Parte na nuvem, parte on-premises, conectados. Comum em migração." },
+    { label: "🏢 On-premises", description: "Tudo no seu data center. Pode usar virtualização, mas não é nuvem pública." },
+  ]}
+/>
+
+<Callout variant="ok">
+  💡 **Quando aparece "híbrido" na prova:** normalmente o cenário cita uma empresa
+  com _data center existente / requisito de manter dados locais por regulação_ que
+  _também_ quer usar a nuvem. Palavra-gatilho: "conectar o ambiente on-premises à
+  AWS".
+</Callout>
+
+## Conectando à sua missão
+
+Num projeto da Caravela, escolher **EC2 (IaaS)** significa o time mantém SO e
+patches — poder e trabalho. Escolher **Lambda/Beanstalk (PaaS)** significa
+entregar mais rápido, abrindo mão de controle fino. Saber esse trade-off _na
+ponta da língua_ é autoridade técnica.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Uma equipe usa o Amazon EC2 e é responsável por instalar patches do sistema operacional. Que modelo de serviço é esse?",
+      options: ["SaaS", "IaaS", "PaaS", "On-premises"],
+      answer: 1,
+      explanation: "Se o cliente ainda gerencia o sistema operacional e os patches, ele está no modelo IaaS — o EC2 é o exemplo clássico.",
+    },
+    {
+      prompt: "A empresa adota o Amazon WorkMail: os funcionários só usam o e-mail, sem gerenciar nenhuma infraestrutura. Modelo?",
+      options: ["IaaS", "PaaS", "SaaS", "Híbrido"],
+      answer: 2,
+      explanation: "No SaaS você apenas usa o software pronto (e-mail gerenciado), sem cuidar de servidor, SO ou plataforma. WorkMail/Gmail são SaaS.",
+    },
+    {
+      prompt: "Um dev quer publicar a aplicação enviando apenas o código, deixando a AWS cuidar do SO, do provisionamento e da escala. Qual modelo/serviço?",
+      options: [
+        "PaaS — AWS Elastic Beanstalk",
+        "IaaS — Amazon EC2",
+        "SaaS — Amazon WorkMail",
+        "On-premises — servidor próprio",
+      ],
+      answer: 0,
+      explanation: "No PaaS você entrega só o código e a plataforma cuida de SO, escala e deploy. Elastic Beanstalk é o exemplo.",
+    },
+    {
+      prompt: "Por exigência regulatória, uma empresa mantém alguns dados no próprio data center, mas conecta esse ambiente à AWS e roda o resto na nuvem. Modelo de implantação?",
+      options: ["Cloud (all-in)", "SaaS", "On-premises puro", "Híbrido"],
+      answer: 3,
+      explanation: "Manter um data center que se conecta à AWS e usar os dois ao mesmo tempo é o modelo de implantação híbrido.",
+    },
+    {
+      prompt: "Ao ir de IaaS → PaaS → SaaS, o que acontece com a sua responsabilidade de gerenciar a infraestrutura?",
+      options: [
+        "Aumenta a cada passo",
+        "Diminui a cada passo",
+        "Permanece igual",
+        "Só muda o preço, não a responsabilidade",
+      ],
+      answer: 1,
+      explanation: "A diferença é 'de que o cliente ainda cuida'. IaaS = mais controle e responsabilidade (SO, rede); SaaS = nenhuma responsabilidade de infra. Conveniência e controle são inversos.",
+    },
+  ]}
+/>
+
+<AskBox title="Dúvida? Sou seu professor.">
+  Volte ao chat e pergunte. Ex.: `"Lambda é PaaS ou outra coisa?"`, `"Quando
+  escolher EC2 em vez de Beanstalk num projeto real?"`, ou `"Me dá um cenário
+  híbrido de verdade"`. Quando estiver firme, peça a **Lição 03 — Regiões, AZs e
+  Edge Locations** (a geografia da AWS).
+</AskBox>
+
+<Nav
+  prev={{ href: "../0001-o-que-e-a-nuvem-e-por-que-importa/", label: "Lição 01", sub: "O que é a nuvem · CapEx→OpEx · 6 vantagens" }}
+  next={{ href: "../0003-regioes-azs-e-edge-locations/", label: "Lição 03", sub: "Regiões · AZs · Edge Locations" }}
+/>
+
+<Sources
+  items={[
+    { label: "AWS — What is Cloud Computing? (tipos de nuvem e modelos IaaS/PaaS/SaaS)", href: "https://aws.amazon.com/what-is-cloud-computing/" },
+    { label: "AWS — Types of Cloud Computing (modelos de implantação)", href: "https://aws.amazon.com/types-of-cloud-computing/" },
+  ]}
+/>

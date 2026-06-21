@@ -1,0 +1,140 @@
+---
+title: "O que é a nuvem — e por que isso importa para quem decide"
+order: 1
+domain: "Domínio 1 — Cloud Concepts"
+summary: "Antes de qualquer serviço, botão ou sigla, existe uma ideia que sustenta toda a AWS. Domine essa ideia e você vai conseguir defender uma decisão de infraestrutura, não só executá-la."
+prerequisites: []
+estMinutes: 7
+---
+
+<MissionBox>
+  Sua missão é ganhar autoridade para tomar decisões de cloud na liderança
+  técnica. Tudo começa aqui: entender _por que_ a nuvem existe e qual problema ela
+  resolve. É o vocabulário que você vai usar numa reunião para justificar "por que
+  AWS".
+
+  <span slot="meta">⏱️ ~7 minutos · termina com um quiz de 4 questões com correção na hora.</span>
+</MissionBox>
+
+## A ideia central
+
+**Computação em nuvem** é a entrega de recursos de TI — servidores,
+armazenamento, banco de dados, rede — **sob demanda pela internet, pagando só
+pelo que você usa**.<sup><a href="#r1">1</a></sup> Em vez de comprar e manter
+máquinas, você as _aluga_ da AWS e liga/desliga conforme precisa.
+
+Como dev, pensa assim: você não compila e hospeda seu próprio runtime de
+linguagem do zero — você _importa uma lib_ e usa. A nuvem faz isso com
+_infraestrutura inteira_: ela vira uma API que você chama, não um caminhão de
+servidores que você instala.
+
+## O salto que muda tudo: CapEx → OpEx
+
+Essa é a frase que líderes técnicos usam para justificar a nuvem. Guarde-a.
+
+<CapexOpex />
+
+<Callout variant="warn">
+  **Atenção de prova:** sempre que a questão falar em "trocar gasto
+  _fixo/adiantado_ por gasto _variável_" ou "pagar apenas pelo que consome", a
+  resposta gira em torno de **CapEx → OpEx** e do modelo **pay-as-you-go**.
+</Callout>
+
+## As 6 vantagens da computação em nuvem
+
+Esta é uma lista **canônica da AWS** — ela aparece em provas e em apresentações.
+Não decore como papagaio; entenda cada uma como um argumento que você poderia
+usar.<sup><a href="#r2">2</a></sup>
+
+1. **Trocar despesa fixa por despesa variável.** Pague pela TI só quando
+   consumir, como conta de luz.
+2. **Beneficiar-se de economias de escala massivas.** A AWS junta o uso de
+   milhões de clientes → preço por unidade menor do que você conseguiria sozinho.
+3. **Parar de adivinhar capacidade.** Nada de servidor ocioso caro nem de ficar
+   sem recurso na hora do pico.
+4. **Aumentar velocidade e agilidade.** Recurso novo a um clique: de semanas para
+   minutos. Experimentar fica barato.
+5. **Parar de gastar mantendo data centers.** Sem racks, refrigeração, segurança
+   física — foque no que dá valor ao cliente.
+6. **Tornar-se global em minutos.** Suba sua aplicação perto dos usuários em
+   qualquer continente com poucos cliques.
+
+<Callout variant="ok">
+  💡 **Atalho de memória:** as vantagens 1–2 são sobre _dinheiro_, 3–4 sobre
+  _flexibilidade_, 5–6 sobre _foco e alcance_. Se lembrar dos três pares,
+  reconstrói a lista inteira.
+</Callout>
+
+## Por que isso te dá autoridade
+
+Numa reunião, "vamos pra AWS" sem argumento é palpite. Mas _"tiramos o CapEx de
+comprar servidor, paramos de adivinhar capacidade e conseguimos subir em São
+Paulo perto do cliente em minutos"_ — isso é uma decisão defensável. Você acabou
+de aprender a linguagem dessa decisão.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Uma empresa quer parar de comprar servidores caros antecipadamente e passar a pagar apenas pelos recursos que usar. Que mudança financeira isso representa?",
+      options: [
+        "De OpEx para CapEx",
+        "De CapEx para OpEx",
+        "De pay-as-you-go para investimento fixo",
+        "Eliminação total de qualquer custo de TI",
+      ],
+      answer: 1,
+      explanation: "Trocar a compra adiantada (CapEx) por pagamento conforme o uso (OpEx) é a mudança financeira central da nuvem.",
+    },
+    {
+      prompt: "Qual vantagem da nuvem resolve diretamente o problema de 'ou sobra servidor ocioso caro, ou falta recurso no pico de acesso'?",
+      options: [
+        "Economias de escala massivas",
+        "Tornar-se global em minutos",
+        "Parar de adivinhar capacidade",
+        "Parar de manter data centers",
+      ],
+      answer: 2,
+      explanation: "'Parar de adivinhar capacidade' é exatamente o benefício de subir/descer recursos sob demanda, sem ociosidade nem falta no pico.",
+    },
+    {
+      prompt: "A AWS consegue oferecer preços por uso menores do que uma empresa conseguiria sozinha porque agrega o consumo de milhões de clientes. Esse benefício se chama:",
+      options: [
+        "Elasticidade",
+        "Agilidade",
+        "Pay-as-you-go",
+        "Economias de escala massivas",
+      ],
+      answer: 3,
+      explanation: "Isso é 'economias de escala massivas': a AWS dilui custos entre milhões de clientes e repassa preço menor.",
+    },
+    {
+      prompt: "Em uma frase, qual é a definição mais correta de computação em nuvem?",
+      options: [
+        "Entrega de recursos de TI sob demanda pela internet, com pagamento conforme o uso",
+        "Um data center privado mais moderno dentro da sua empresa",
+        "Um software de backup que copia arquivos para a internet",
+        "A garantia de que a TI nunca mais terá custos",
+      ],
+      answer: 0,
+      explanation: "Nuvem = recursos de TI sob demanda, pela internet, pagando pelo uso. As outras opções confundem nuvem com backup, data center privado ou 'TI grátis'.",
+    },
+  ]}
+/>
+
+<AskBox title="Travou em algo? Eu sou seu professor.">
+  Volte ao chat e me pergunte qualquer coisa desta lição. Por exemplo: `"Me dê um
+  exemplo concreto de economia de escala"`, `"CapEx vs OpEx num projeto real da
+  Caravela?"` ou `"Me faça mais 5 questões nesse estilo"`. Quando se sentir firme,
+  peça a **Lição 02** — vamos para IaaS / PaaS / SaaS e os modelos de implantação.
+</AskBox>
+
+<Nav
+  next={{ href: "../0002-modelos-de-servico-e-implantacao/", label: "Lição 02", sub: "Modelos de serviço: IaaS · PaaS · SaaS" }}
+/>
+
+<Sources
+  items={[
+    { label: "AWS — What is Cloud Computing?", href: "https://aws.amazon.com/what-is-cloud-computing/" },
+    { label: "AWS Whitepaper — Six advantages of cloud computing", href: "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/six-advantages-of-cloud-computing.html" },
+  ]}
+/>

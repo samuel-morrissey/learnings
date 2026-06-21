@@ -1,0 +1,152 @@
+---
+title: "Auto Scaling e Load Balancing: a elasticidade na prática"
+order: 5
+domain: "Domínio 3 — Computação"
+summary: "Você já sabe criar uma instância EC2. Mas uma instância tem dois problemas fatais: ela pode ser sobrecarregada e é um ponto único de falha. Esta dupla — Auto Scaling + Elastic Load Balancing — resolve os dois e forma a arquitetura web mais clássica da AWS."
+prerequisites: ["aws/0004-amazon-ec2-e-modelos-de-compra", "aws/0003-regioes-azs-e-edge-locations"]
+estMinutes: 8
+---
+
+<MissionBox>
+  Este é _o_ diagrama que você vai reconhecer em 90% das arquiteturas AWS. E ele
+  materializa duas coisas que você já citou: a **elasticidade** (pagar só pelo que
+  usa) e a vantagem **"parar de adivinhar capacidade"**. Saber explicá-lo é falar
+  a língua de custo _e_ de disponibilidade numa reunião.
+
+  <span slot="meta">⏱️ ~8 min · quiz de 5 questões · pré-requisitos: Lição 04 (EC2) e Lição 03 (AZs).</span>
+</MissionBox>
+
+## O problema de uma instância só
+
+Imagine a API de produção da Caravela numa única instância EC2. Na Black Friday o
+tráfego triplica e a máquina não dá conta (sem escala). Pior: se a AZ daquela
+instância cair, o sistema inteiro sai do ar (ponto único de falha). Precisamos de
+**várias instâncias, em várias AZs** — e de algo que distribua o tráfego entre
+elas e ajuste a quantidade sozinho.
+
+## As duas peças
+
+| Serviço                          | O que faz                                                                                                                | Qual problema resolve                                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| **Elastic Load Balancing (ELB)** | Recebe o tráfego de entrada e o **distribui** entre várias instâncias, em uma ou mais AZs. Faz **health checks** e só envia para instâncias saudáveis. | **Disponibilidade / tolerância a falha:** se uma instância (ou AZ) cai, o ELB para de mandar tráfego para ela e usa as outras. |
+| **EC2 Auto Scaling (ASG)**       | Ajusta **automaticamente o número de instâncias** conforme a demanda: _scale out_ (adiciona) na alta, _scale in_ (remove) na baixa. | **Elasticidade / custo:** capacidade acompanha a demanda em tempo real — sem adivinhar, sem pagar por máquina parada. |
+
+## Como elas trabalham juntas
+
+<ScalingArchitecture />
+
+Pense assim: o **Auto Scaling decide _quantas_ instâncias existem**; o **ELB
+decide _para qual_ instância cada requisição vai**. Juntos entregam um sistema que
+**cresce e encolhe sozinho** e **sobrevive à queda de uma AZ** (lembra de
+multi-AZ da Lição 03?).<sup><a href="#r1">1</a></sup>
+
+<Callout variant="warn">
+  **Distinção que cai muito — horizontal vs vertical:** Auto Scaling faz **escala
+  horizontal** (mais/menos instâncias). Ele _não_ troca a instância por uma maior
+  — isso seria escala **vertical**, e é uma mudança manual de tipo. Se a questão
+  diz "ajustar automaticamente a _quantidade_ de servidores conforme a demanda" →
+  Auto Scaling.
+</Callout>
+
+### Tipos de Load Balancer (só reconhecer)
+
+- 🌐 **ALB** (Application) — camada 7, tráfego **HTTP/HTTPS**, roteamento por conteúdo. O mais comum para web.
+- ⚡ **NLB** (Network) — camada 4, **TCP/UDP**, performance e latência extremas.
+- 🛡️ **GWLB** (Gateway) — appliances de rede (firewalls).
+
+Para a prova basta: **ALB = web/HTTP**; **NLB = altíssima
+performance/TCP**.<sup><a href="#r2">2</a></sup>
+
+<Callout variant="info">
+  🧠 **Conexão com as 6 vantagens:** esta dupla é a encarnação técnica de **"parar
+  de adivinhar capacidade"** (vantagem #3). Você não dimensiona para o pico e reza
+  — a infra acompanha a demanda.
+</Callout>
+
+## Conectando à sua missão
+
+Quando um cliente perguntar _"e se o sistema bombar de repente?"_ ou _"e se um
+data center cair?"_, a resposta defensável é uma só arquitetura: **Auto Scaling
+Group de instâncias EC2 distribuídas em múltiplas AZs, atrás de um Application
+Load Balancer**. Custo controlado (escala in à noite), disponibilidade garantida
+(multi-AZ + health checks). Essa frase é exatamente a autoridade técnica que a sua
+missão busca.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Uma aplicação tem picos imprevisíveis de tráfego. Você quer que o número de instâncias EC2 aumente e diminua sozinho conforme a demanda. Qual serviço usar?",
+      options: [
+        "Elastic Load Balancing",
+        "Amazon CloudFront",
+        "EC2 Auto Scaling",
+        "Reserved Instances",
+      ],
+      answer: 2,
+      explanation: "Ajustar automaticamente o NÚMERO de instâncias conforme a demanda é o papel do EC2 Auto Scaling (escala horizontal).",
+    },
+    {
+      prompt: "Qual é a função principal do Elastic Load Balancing?",
+      options: [
+        "Reduzir o custo das instâncias com desconto de longo prazo",
+        "Distribuir o tráfego de entrada entre múltiplas instâncias saudáveis",
+        "Armazenar arquivos estáticos perto do usuário",
+        "Criar imagens (AMI) das instâncias automaticamente",
+      ],
+      answer: 1,
+      explanation: "O Elastic Load Balancing distribui o tráfego entre várias instâncias e, via health checks, para de enviar requisições para as que estão doentes — melhorando a disponibilidade.",
+    },
+    {
+      prompt: "Você quer que a aplicação continue no ar mesmo se uma Zona de Disponibilidade inteira falhar. Qual desenho atende?",
+      options: [
+        "Uma instância EC2 maior (escala vertical)",
+        "Várias instâncias na mesma AZ atrás de um ELB",
+        "Spot Instances numa única AZ",
+        "Instâncias em múltiplas AZs atrás de um Elastic Load Balancer",
+      ],
+      answer: 3,
+      explanation: "Distribuir as instâncias em múltiplas AZs atrás de um load balancer faz o sistema sobreviver à queda de uma AZ inteira — alta disponibilidade.",
+    },
+    {
+      prompt: "Qual afirmação descreve corretamente o EC2 Auto Scaling?",
+      options: [
+        "Faz escala horizontal — adiciona ou remove instâncias conforme a demanda",
+        "Aumenta a CPU e a RAM de uma única instância automaticamente",
+        "Distribui o tráfego entre instâncias existentes",
+        "Garante desconto de até 72% em troca de compromisso",
+      ],
+      answer: 0,
+      explanation: "Auto Scaling faz escala HORIZONTAL: adiciona/remove instâncias. Trocar por uma máquina maior é escala vertical, que não é o que o Auto Scaling faz.",
+    },
+    {
+      prompt: "Para balancear tráfego web HTTP/HTTPS com roteamento baseado no caminho da URL, qual tipo de load balancer é o mais indicado?",
+      options: [
+        "Network Load Balancer (NLB)",
+        "Application Load Balancer (ALB)",
+        "Gateway Load Balancer (GWLB)",
+        "Nenhum — load balancers não tratam HTTP",
+      ],
+      answer: 1,
+      explanation: "Para tráfego web HTTP/HTTPS com roteamento por conteúdo, o Application Load Balancer (ALB, camada 7) é a escolha padrão.",
+    },
+  ]}
+/>
+
+<AskBox title="Dúvida? Sou seu professor.">
+  Volte ao chat e pergunte. Ex.: `"O que é um launch template?"`, `"Como o Auto
+  Scaling decide quando escalar (target tracking)?"` ou `"ALB vs NLB num caso
+  real?"`. A **Lição 06** é um bônus de fundamento de rede: **as camadas L4 vs L7
+  (ALB vs NLB)**.
+</AskBox>
+
+<Nav
+  prev={{ href: "../0004-amazon-ec2-e-modelos-de-compra/", label: "Lição 04", sub: "EC2 · modelos de compra" }}
+  next={{ href: "../0006-bonus-camadas-de-rede-l4-vs-l7/", label: "Lição 06 (Bônus)", sub: "Camadas de rede · L4 vs L7" }}
+/>
+
+<Sources
+  items={[
+    { label: "AWS — EC2 Auto Scaling", href: "https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html" },
+    { label: "AWS — Tipos de Load Balancer", href: "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html" },
+  ]}
+/>
