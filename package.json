@@ -10,7 +10,9 @@
     "check": "astro check",
     "test": "vitest run",
     "gen:guide": "node scripts/generate-catalog-guide.mts",
-    "gen:guide:check": "node scripts/generate-catalog-guide.mts --check"
+    "gen:guide:check": "node scripts/generate-catalog-guide.mts --check",
+    "gen:frontmatter-guide": "node scripts/generate-frontmatter-guide.mts",
+    "gen:frontmatter-guide:check": "node scripts/generate-frontmatter-guide.mts --check"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
