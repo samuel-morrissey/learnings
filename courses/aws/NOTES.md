@@ -37,8 +37,17 @@
   revisão: 3/3 corretas (modelos de implantação atrasado, NLB L4, funil de região) — todos promovidos a
   estágio 2. APRENDIDA em 19/06: teach-back escrito completo + fechou durabilidade vs disponibilidade
   (ver LR-0010). Seção Storage criada no glossário com as palavras dele. S3 na fila de revisão.
-- D3 próximos: **Lição 08 = classes de armazenamento do S3**; depois Lambda/contêineres
-  (ECS/Fargate), depois bancos (RDS/DynamoDB) e rede (VPC).
+- Sessão 22/06 abriu com revisão: 4 itens vencidos. CapEx/OpEx, IaaS/PaaS/SaaS e ASG/ELB-multi-AZ
+  (recuperação A FRIO do erro de 18/06!) → corretos, promovidos. As 6 vantagens: 5/6, buraco RECORRENTE
+  = o 2º gêmeo da Flexibilidade (**velocidade/agilidade**); re-cementou com gancho causal próprio
+  ("só paro de adivinhar porque reajo rápido"); volta em 4 dias (26/06) mirando esse par.
+- Lição 08 = **classes de armazenamento do S3**: CRIADA + ENTREGUE em 22/06. Escopo: princípio único
+  (barato-guardar ⇄ caro/lento-acessar, 11 noves em todas), 3 temperaturas, funil de decisão
+  (Standard → Intelligent-Tiering → Standard-IA → One Zone-IA → Glacier ×3), pegadinha da taxa de
+  recuperação + duração mínima, ciclo de vida. AGUARDANDO produção ativa (pseudo cheat sheet) → ainda
+  NÃO aprendida; criar verbete de classes no glossário a partir da compressão dele.
+- D3 próximos: **Lição 09 = Lambda/serverless**; depois contêineres (ECS/Fargate), bancos
+  (RDS/DynamoDB) e rede (VPC).
 - D2: Modelo de Responsabilidade Compartilhada (muito cobrado) — Q4 das Lições 04/05 já planta a semente.
 - D2: IAM (usuários, grupos, roles, políticas, MFA).
 - D3: serviços core de compute/storage/database/network (EC2, S3, RDS, VPC...).

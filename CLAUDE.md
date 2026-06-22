@@ -4,6 +4,10 @@ Hub estático auto-indexado de cursos/aulas em HTML, publicado no GitHub Pages, 
 
 ## Agent skills
 
+### Professor (`/professor`)
+
+O Professor deste repo, versionado em `.claude/skills/professor/` (fork da `teach-v2` global, lineage teach-v3). Invocado com o nome da pasta do Curso (`/professor <pasta> …`); escopa todo o estado de ensino a `courses/<nome>/`, lê somente leitura `docs/catalog-guide.md` e `docs/frontmatter-guide.md`, e escreve Aulas em MDX escolhendo Componentes do Catálogo por significado. Cego à Plataforma (`src/`, build, `gh`) e aos demais Cursos. See `.claude/skills/professor/SKILL.md`.
+
 ### Issue tracker
 
 Issues e PRDs vivem como GitHub Issues do repositório (`gh` CLI); PRs externos não entram na fila de triage. Issues criadas a partir de um PRD são vinculadas como sub-issues nativas do PRD. See `docs/agents/issue-tracker.md`.

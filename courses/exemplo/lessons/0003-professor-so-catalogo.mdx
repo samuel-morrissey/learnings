@@ -1,0 +1,87 @@
+---
+title: "O Professor escreve só com o Catálogo"
+order: 3
+domain: "Plataforma"
+summary: "Uma Aula que prova a fatia Catálogo-only do Professor: Frontmatter completo, Componentes do Catálogo por significado e zero import, HTML cru, script ou CDN."
+prerequisites: ["exemplo/0002-catalogo-v1"]
+estMinutes: 4
+---
+
+<Kicker>Plataforma · Professor (Catálogo-only)</Kicker>
+
+Esta Aula é a **demonstração** da skill `/professor` na sua primeira fatia: o
+Professor opera apontando para um Curso pela pasta, lê o guia do Catálogo e do
+Frontmatter, e escreve a Aula **por significado** — sem nunca descer ao markup.
+
+<MissionBox>
+  O Professor decide _o que ensinar_ e _qual intenção pedagógica_ usar; a
+  Plataforma cuida do HTML, do estilo e do offline. Tudo aqui sai do Catálogo,
+  sem um único `import`.
+
+  <span slot="meta">⏱️ ~4 min · pré-requisito: "Catálogo v1".</span>
+</MissionBox>
+
+## O que esta fatia garante
+
+<CompareCards
+  cards={[
+    { tag: "Meio", label: "MDX, não HTML", description: "A Aula é prosa Markdown mais Componentes do Catálogo." },
+    { tag: "Escopo", label: "Curso por pasta", description: "Todo o estado de ensino vive sob courses/<nome>/." },
+    { tag: "Seam", label: "Cego à Plataforma", description: "O Professor não toca src/, build ou gh.", highlight: true },
+  ]}
+/>
+
+<Callout variant="ok">
+  **Boa prática:** prefira sempre um Componente existente, mesmo imperfeito, a
+  inventar markup. O Catálogo é a fonte de verdade — mantê-lo central vale mais
+  que o ajuste fino de uma Aula.
+</Callout>
+
+<Callout variant="warn">
+  **Fora desta fatia:** a escotilha (delegar um Esboço ao Desenvolvedor) ainda
+  não está ligada. Quando nada do Catálogo serve, escolha o Componente mais
+  próximo — nunca contorne escrevendo HTML cru.
+</Callout>
+
+## Fixando
+
+<Quiz
+  questions={[
+    {
+      prompt: "Onde o Professor pode ler e escrever nesta fatia?",
+      options: [
+        "Em qualquer pasta do repo, inclusive src/",
+        "Só sob courses/<nome>/, mais os dois guias em docs/ (somente leitura)",
+        "Só em src/components/",
+      ],
+      answer: 1,
+      explanation: "O estado de ensino é escopado ao Curso; as únicas leituras fora são docs/catalog-guide.md e docs/frontmatter-guide.md.",
+    },
+    {
+      prompt: "Como o Professor usa um Componente do Catálogo no MDX?",
+      options: [
+        "Escrevendo um import no topo do arquivo",
+        "Copiando o HTML do Componente",
+        "Pelo nome, por significado, sem import (já é global)",
+      ],
+      answer: 2,
+      explanation: "Todo o Catálogo é injetado na renderização; a Aula usa <Callout>, <Quiz>, etc. direto, sem import.",
+    },
+  ]}
+/>
+
+<AskBox>
+  Volte ao chat e me diga, **com suas palavras**, por que o Professor é cego à
+  Plataforma — e o que esse seam protege. Comprimir do seu jeito é o que fixa.
+</AskBox>
+
+<Nav
+  prev={{ href: "../0002-catalogo-v1/", label: "Catálogo v1", sub: "Os Componentes de conteúdo" }}
+/>
+
+<Sources
+  items={[
+    { label: "ADR 0004 — Professor e Desenvolvedor como skills no repo" },
+    { label: "CONTEXT.md — glossário do domínio (Professor, Catálogo, Aula)" },
+  ]}
+/>

@@ -1,0 +1,189 @@
+---
+title: "Classes de armazenamento do S3: pagar pelo acesso, não só pelo dado"
+order: 8
+domain: "Domínio 3 — Storage"
+summary: "O S3 não tem um preço só. Guardar um backup que você nunca abre custa centavos; guardar o avatar que carrega a cada clique custa mais. A classe de armazenamento é a sua resposta honesta a uma pergunta: com que frequência eu acesso isto — e quão rápido preciso dele de volta?"
+prerequisites: ["aws/0007-amazon-s3-object-storage"]
+estMinutes: 9
+---
+
+<Kicker>CLF-C02 · Lição 08 · Domínio 3 — Storage</Kicker>
+
+<MissionBox>
+  Na Lição 07 você fechou _o que_ é o S3. Agora vem o tópico de S3 que **mais cai
+  na prova**: as **classes de armazenamento**. Não é decoreba de nomes — é uma
+  decisão de custo que você vai precisar **defender** ("por que jogamos os logs
+  antigos no Glacier?"). Domine a régua e você responde qualquer questão de classe
+  por raciocínio, sem memorizar tabela.
+
+  <span slot="meta">⏱️ ~9 min · quiz de 5 questões · pré-requisito: Lição 07 (S3).</span>
+</MissionBox>
+
+## O princípio único: não existe almoço grátis
+
+Todas as classes guardam o mesmo objeto com a **mesma durabilidade de 11 noves**.
+O que muda é uma troca só, e ela é simétrica:
+
+<Callout variant="info">
+  **A régua:** quanto **mais barato para guardar**, **mais caro e mais lento para
+  recuperar** (e, num caso, menos resiliente). Você não escolhe "a melhor classe";
+  você escolhe **onde quer pagar** — no armazenamento ou no acesso.<sup><a href="#r1">1</a></sup>
+</Callout>
+
+Pensa como um dev pensa em **cache**: dado quente fica na RAM (caro, instantâneo);
+dado frio desce pro disco/fita (barato, lento). A AWS só deu nomes a essas
+temperaturas — e cobra de acordo.
+
+## As três temperaturas do dado
+
+<CompareCards
+  cards={[
+    { tag: "Quente", label: "S3 Standard", description: "Acesso o tempo todo. Mais caro por GB guardado, mas ZERO taxa de acesso. É o padrão.", highlight: true },
+    { tag: "Morno", label: "S3 Standard-IA / One Zone-IA", description: "Acesso raro, mas preciso dele rápido quando peço. Guardar é barato; recuperar tem taxa." },
+    { tag: "Frio", label: "S3 Glacier (3 sabores)", description: "Arquivo morto: backup, compliance, logs antigos. Guardar é baratíssimo; recuperar custa e/ou demora." },
+  ]}
+/>
+
+"IA" = **Infrequent Access** (acesso infrequente). Repara que a fronteira entre as
+temperaturas **não é o tamanho do dado** — é **a frequência com que você o toca**.
+
+## O funil de decisão (responda em ordem)
+
+Em vez de decorar 7 nomes, desça este funil — cada pergunta é uma _guard clause_
+que te joga numa classe e encerra:
+
+1. **Acesso com frequência?** → **S3 Standard**. Fim. (Sites, dado de app, qualquer
+   coisa servida a cada clique.)
+2. **Não sei / o padrão de acesso muda e não quero pensar nisso?** →
+   **S3 Intelligent-Tiering**. A AWS move o objeto entre as camadas sozinha,
+   conforme o uso; você paga uma pequena **taxa de monitoramento** por objeto e
+   **não paga taxa de recuperação**. É o "set and forget".<sup><a href="#r2">2</a></sup>
+3. **Acesso raro, mas quando preciso é _na hora_ e o dado é crítico?** →
+   **S3 Standard-IA**. Guardar sai barato; em troca há **taxa de recuperação** e
+   **duração mínima de 30 dias** de cobrança. Continua em **várias AZs**.
+4. **Igual ao IA, mas o dado é _recriável_ e posso tolerar perdê-lo se uma AZ cair?**
+   → **S3 One Zone-IA**. Mora numa **única AZ** (≈20% mais barato que o Standard-IA),
+   logo **perde a resiliência multi-AZ**. Só para dado que você regenera (thumbnails,
+   cópias secundárias).
+5. **É arquivo morto (backup, compliance, log antigo)?** → família **Glacier**, e aí
+   a sub-pergunta é **quão rápido preciso de volta?**
+   - **Glacier Instant Retrieval** — milissegundos, mas acessado ~1×/trimestre.
+   - **Glacier Flexible Retrieval** — minutos a horas.
+   - **Glacier Deep Archive** — o **mais barato de todos**; recuperação em ~12 h.
+     Compliance de longo prazo (7–10 anos).
+
+<Callout variant="warn">
+  **Pegadinha clássica de prova:** as classes IA e Glacier cobram **taxa de
+  recuperação** e têm **duração mínima** de cobrança. Jogar nelas um dado que você
+  acessa muito sai **mais caro** que o Standard — você economiza no armazenamento e
+  perde tudo (e mais) na recuperação. A régua só vale se a sua resposta sobre
+  frequência for honesta.
+</Callout>
+
+## Quem move o dado entre as classes? (ciclo de vida)
+
+Você não precisa migrar objeto a objeto na mão. Uma **regra de ciclo de vida
+(_lifecycle rule_)** automatiza o esfriamento por idade — ex.: _"objeto nasce em
+Standard; aos 30 dias vai pra Standard-IA; aos 90 vai pro Glacier; aos 365 é
+apagado"_.<sup><a href="#r3">3</a></sup> É assim que se faz, na prática, "logs
+antigos viram baratos sozinhos".
+
+<Callout variant="ok">
+  **Atalho mental honesto:** se a frequência de acesso **cai com a idade** (logs,
+  backups), use **ciclo de vida** para descer as temperaturas no tempo. Se a
+  frequência é **imprevisível** e não cai de forma óbvia, deixe o
+  **Intelligent-Tiering** decidir. Você só escolhe a classe fixa na mão quando
+  **sabe** o padrão.
+</Callout>
+
+## Conectando à sua missão
+
+Quando o cliente perguntar _"dá pra baratear esses 4 TB de backup que ninguém
+abre?"_, a resposta defensável é: **"sim — eles estão em Standard pagando preço de
+dado quente. São arquivo morto que toleramos recuperar em horas, então uma regra de
+ciclo de vida os move pro Glacier Deep Archive; o GB cai para uma fração, ao custo
+de ~12 h para restaurar se algum dia precisarmos."** Isso é decidir custo de storage
+com autoridade — exatamente o que a certificação está te dando.
+
+<Quiz
+  questions={[
+    {
+      prompt: "Imagens de produto de um e-commerce, servidas a cada visita à página. Qual classe?",
+      options: [
+        "S3 Glacier Deep Archive",
+        "S3 Standard",
+        "S3 One Zone-IA",
+        "S3 Standard-IA",
+      ],
+      answer: 1,
+      explanation: "Dado quente (acessado o tempo todo) → S3 Standard. As classes IA/Glacier cobram taxa de recuperação; usá-las para algo lido a cada clique sairia muito mais caro.",
+    },
+    {
+      prompt: "Um bucket novo recebe dados cujo padrão de acesso você NÃO conhece e que pode mudar com o tempo. Qual a escolha mais segura?",
+      options: [
+        "S3 Standard-IA, para garantir economia",
+        "S3 Glacier Flexible Retrieval",
+        "S3 Intelligent-Tiering",
+        "One Zone-IA",
+      ],
+      answer: 2,
+      explanation: "Quando o padrão é desconhecido ou variável, o Intelligent-Tiering move os objetos entre camadas automaticamente, sem taxa de recuperação — você evita o risco de escolher errado. As classes IA/Glacier só compensam quando você TEM CERTEZA de que o acesso é raro.",
+    },
+    {
+      prompt: "Backups de compliance que devem ser guardados por 7 anos e quase nunca são lidos; quando forem, tudo bem esperar ~12 horas. Qual classe minimiza o custo?",
+      options: [
+        "S3 Standard",
+        "S3 Standard-IA",
+        "S3 Glacier Deep Archive",
+        "S3 Intelligent-Tiering",
+      ],
+      answer: 2,
+      explanation: "Arquivo morto + tolera recuperação lenta (~12 h) → Glacier Deep Archive, o mais barato de todos para guardar. Pagar por acesso rápido aqui seria desperdício, já que o dado quase nunca é lido.",
+    },
+    {
+      prompt: "Thumbnails que seu sistema consegue REGERAR a qualquer momento a partir do original, acessados raramente. Você quer o menor custo de armazenamento possível. Qual classe?",
+      options: [
+        "S3 Standard-IA",
+        "S3 One Zone-IA",
+        "S3 Standard",
+        "S3 Glacier Instant Retrieval",
+      ],
+      answer: 1,
+      explanation: "Dado recriável + acesso raro → One Zone-IA: mora numa única AZ (mais barato que Standard-IA), e você aceita o risco de perder a cópia numa falha de AZ porque consegue regenerá-la. Se NÃO fosse recriável, o single-AZ seria arriscado demais.",
+    },
+    {
+      prompt: "Um time guardou dados acessados várias vezes por dia em S3 Standard-IA 'para economizar'. A conta veio mais alta que o esperado. Por quê?",
+      options: [
+        "Standard-IA tem durabilidade menor e cobra por isso",
+        "Standard-IA cobra taxa de recuperação a cada acesso (e tem duração mínima); para dado acessado muito, sai mais caro que o Standard",
+        "Standard-IA não permite mais de 1 acesso por dia",
+        "Standard-IA só funciona em uma região",
+      ],
+      answer: 1,
+      explanation: "A régua: o IA é barato para GUARDAR, mas cobra para RECUPERAR (+ duração mínima de 30 dias). Acesso frequente multiplica a taxa de recuperação e estoura o custo — esse dado deveria estar em Standard. A durabilidade (11 noves) é a mesma.",
+    },
+  ]}
+/>
+
+<AskBox>
+  Volte ao chat e me mande, **com suas palavras**, um mini cheat sheet das **classes
+  do S3**: (1) o **princípio único** (a régua barato-pra-guardar ⇄ caro-pra-acessar);
+  (2) o **funil de decisão** — as perguntas em ordem que levam a Standard →
+  Intelligent-Tiering → Standard-IA → One Zone-IA → Glacier; (3) a **pegadinha** que
+  faz o IA sair mais caro. Não cole daqui — comprimir do seu jeito é o que fixa, e eu
+  corrijo e isso vira o verbete de classes no glossário. Dúvidas valem: `"quando o
+  Intelligent-Tiering NÃO compensa?"` ou `"One Zone-IA tem os mesmos 11 noves?"`.
+</AskBox>
+
+<Nav
+  prev={{ href: "../0007-amazon-s3-object-storage/", label: "Lição 07", sub: "Amazon S3 · armazenamento de objetos" }}
+  next={{ href: "#", label: "Lição 09", sub: "Compute serverless · Lambda (em breve)" }}
+/>
+
+<Sources
+  items={[
+    { label: "AWS — S3 Storage Classes (visão geral e trade-offs)", href: "https://aws.amazon.com/s3/storage-classes/" },
+    { label: "AWS — Amazon S3 FAQs (Intelligent-Tiering, taxas de recuperação)", href: "https://aws.amazon.com/s3/faqs/" },
+    { label: "AWS — Managing your storage lifecycle (regras de ciclo de vida)", href: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html" },
+  ]}
+/>
