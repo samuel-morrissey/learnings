@@ -28,9 +28,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
-      - name: Build _site
-        run: node scripts/build.js
+      - name: Install dependencies
+        run: npm ci
+
+      # The Astro Platform is now the single way the site is built: it renders
+      # every MDX Lesson, the hub and the Course pages into static files in dist/.
+      - name: Build site
+        run: npm run build
 
       # Rasterize the single SVG source into the PNG sizes iOS and the manifest
       # need. The repo stores only icon.svg. ImageMagick is no longer preinstalled
@@ -40,14 +46,14 @@ jobs:
 
       - name: Rasterize PWA icons
         run: |
-          convert -background none icon.svg -resize 180x180 _site/apple-touch-icon.png
-          convert -background none icon.svg -resize 192x192 _site/icon-192.png
-          convert -background none icon.svg -resize 512x512 _site/icon-512.png
+          convert -background none icon.svg -resize 180x180 dist/apple-touch-icon.png
+          convert -background none icon.svg -resize 192x192 dist/icon-192.png
+          convert -background none icon.svg -resize 512x512 dist/icon-512.png
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: dist
 
   deploy:
     needs: build

@@ -10,6 +10,12 @@ interface Props {
 }
 
 const { title } = Astro.props;
+
+// PWA wiring lives here so every page (hub, Course, Lesson) is installable.
+// `BASE_URL` carries the Pages subpath, so the manifest and touch icon resolve
+// under `/<repo>/`. The icons are PNGs rasterized from `icon.svg` at deploy time;
+// `public/manifest.webmanifest` is served verbatim at the site root.
+const base = import.meta.env.BASE_URL;
 ---
 
 <!doctype html>
@@ -18,7 +24,15 @@ const { title } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <link rel="manifest" href={`${base}manifest.webmanifest`} />
     <meta name="theme-color" content="#10202e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Learnings" />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
   </head>
   <body>
     <div class="wrap">
