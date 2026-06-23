@@ -36,3 +36,9 @@ que se provar reutilizável.
 **Fora de escopo agora:** a orquestração entre as camadas Pedagogo e Plataforma
 (auto-entrega do guia do Catálogo ao Pedagogo, automação do subagente-ponte). O
 guia é gerado do Catálogo, mas entregue manualmente ao Pedagogo por enquanto.
+
+> **Revertido pela [ADR 0004](./0004-professor-e-desenvolvedor-como-skills-no-repo.md):**
+> a automação do subagente-ponte deixou de ser fora de escopo. O Professor agora
+> **delega** ao Desenvolvedor (`/professor-developer`) via a ferramenta de
+> subagente, passando uma spec agnóstica de Plataforma; o laço Esboço fecha sem
+> humano no meio. Os trilhos acima seguem valendo.

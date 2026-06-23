@@ -6,7 +6,11 @@ Hub estático auto-indexado de cursos/aulas em HTML, publicado no GitHub Pages, 
 
 ### Professor (`/professor`)
 
-O Professor deste repo, versionado em `.claude/skills/professor/` (fork da `teach-v2` global, lineage teach-v3). Invocado com o nome da pasta do Curso (`/professor <pasta> …`); escopa todo o estado de ensino a `courses/<nome>/`, lê somente leitura `docs/catalog-guide.md` e `docs/frontmatter-guide.md`, e escreve Aulas em MDX escolhendo Componentes do Catálogo por significado. Cego à Plataforma (`src/`, build, `gh`) e aos demais Cursos. See `.claude/skills/professor/SKILL.md`.
+O Professor deste repo, versionado em `.claude/skills/professor/` (fork da `teach-v2` global, lineage teach-v3). Invocado com o nome da pasta do Curso (`/professor <pasta> …`); escopa todo o estado de ensino a `courses/<nome>/`, lê somente leitura `docs/catalog-guide.md` e `docs/frontmatter-guide.md`, e escreve Aulas em MDX escolhendo Componentes do Catálogo por significado. Cego à Plataforma (`src/`, build, `gh`) e aos demais Cursos. Quando o Catálogo não cobre um visual/interação, delega a um subagente que invoca `/professor-developer` (a escotilha orquestrada). See `.claude/skills/professor/SKILL.md`.
+
+### Desenvolvedor (`/professor-developer`)
+
+O Desenvolvedor deste repo (`.claude/skills/professor-developer/`, `disable-model-invocation: true`) — a outra ponta da escotilha orquestrada. A pedido do Professor (via subagente), recebe uma spec agnóstica de Plataforma (id da Aula, intenção, dados, flag `reutilizável`), constrói o Esboço como Componente Astro nos trilhos em `src/sketches/`, vincula-o à Aula em `src/sketches/registry.ts`, valida (`npm run check` + teste Seam B + `tests/sketches.test.ts`), e devolve ao Professor só o snippet de uso (`<Nome … />`), nunca código. Quando `reutilizável`, abre uma Solicitação de Componente. Nunca toca o Catálogo nem promove. See `.claude/skills/professor-developer/SKILL.md`.
 
 ### Issue tracker
 

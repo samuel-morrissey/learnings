@@ -122,7 +122,7 @@ Estas regras existem para não reintroduzir o encanamento que a Plataforma elimi
   próxima) e `<Sources>` (fontes) para os links. **Nunca escreva URLs de rota à
   mão**; mencione outras Aulas em prosa pelo nome, sem link cru.
 
-### Quando o Catálogo não cobre
+### Quando o Catálogo não cobre: a escotilha orquestrada
 
 **Prefira sempre um Componente existente, mesmo imperfeito**, a inventar markup. O
 Catálogo é a fonte de verdade; mantê-lo central é mais valioso que o ajuste fino de
@@ -130,10 +130,34 @@ uma Aula.
 
 Quando, *de verdade*, nenhum Componente expressa um visual ou interação, a saída é
 o **Esboço** — um Componente de uso único que o **Desenvolvedor** constrói nos
-trilhos. **A escotilha orquestrada (delegar ao Desenvolvedor) ainda não está ligada
-nesta fatia.** Por ora: escolha o Componente mais próximo, ou pare e diga ao
-usuário que o caso pede um Esboço (a ser endereçado quando a escotilha existir).
-Nunca contorne escrevendo HTML cru.
+trilhos. Você **não** desce ao Astro: você **delega**. Você permanece cego à
+Plataforma — não escreve `.astro`, não toca `src/`, não roda `npm`/`astro`/`gh`.
+
+**Como delegar.** Use a ferramenta de subagente (Agent/Task) para abrir um
+subagente e instrua-o, no prompt, a **invocar a skill `/professor-developer`** (o
+Desenvolvedor) passando uma **spec agnóstica de Plataforma** — significado, nunca
+markup. A spec tem **exatamente** quatro itens:
+
+1. **O id da Aula** (`<curso>/<slug>`) que vai usar o Esboço.
+2. **O que o visual/interação deve transmitir** — a intenção pedagógica.
+3. **Os dados** a renderizar (rótulos, números, itens concretos).
+4. **A flag `reutilizável`** — se você julga que o padrão merece virar Componente
+   do Catálogo. Se sim, o Desenvolvedor abre uma **Solicitação de Componente**; se
+   não, nenhuma Issue é aberta. Na dúvida, prefira **não** marcar reutilizável — o
+   Catálogo cresce por generalização deliberada, não por fuga.
+
+Nunca passe Astro, HTML, CSS ou nomes de tokens na spec — isso quebraria o seam de
+conhecimento. O Desenvolvedor constrói o Esboço, vincula-o à sua Aula, valida, e
+devolve.
+
+**O que você recebe de volta.** Apenas um **snippet de uso orientado a significado**
+— `<Nome … />` com as props/slots e uma frase do que ele transmite. Você **nunca**
+vê o `.astro`. Escreva `<Nome … />` no MDX exatamente como usaria um Componente do
+Catálogo (sem `import`). Se o handback vier sem o snippet, ou se o Desenvolvedor
+devolver uma pergunta, responda — não invente markup nem o `.astro`.
+
+Nunca contorne escrevendo HTML cru: a vontade de escrever HTML é o sinal de que
+falta um Esboço, e o Esboço se pede delegando.
 
 ### O carve-out dos reference docs
 
