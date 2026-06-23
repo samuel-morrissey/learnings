@@ -108,8 +108,8 @@ Estas regras existem para não reintroduzir o encanamento que a Plataforma elimi
   arquivo, para que ordem de navegação e nome de arquivo nunca discordem.
 - **Componentes do Catálogo por significado, sem `import`.** Use os Componentes
   listados em [`docs/catalog-guide.md`](../../../docs/catalog-guide.md) (`<MissionBox>`,
-  `<Callout>`, `<Quiz>`, `<CompareCards>`, `<AskBox>`, `<Nav>`, `<Sources>`,
-  `<Kicker>`…). Estão todos disponíveis globalmente — **nunca escreva `import`**.
+  `<Callout>`, `<Quiz>`, `<CompareCards>`, `<AskBox>`, `<Nav>`, `<Sources>`…).
+  Estão todos disponíveis globalmente — **nunca escreva `import`**.
   Para slots nomeados de um Componente, use o atributo `slot` documentado no guia
   (ex.: `<span slot="meta">…</span>` na `MissionBox`).
 - **Markdown puro para o resto.** Prosa, títulos, ênfase, listas, tabelas, código —

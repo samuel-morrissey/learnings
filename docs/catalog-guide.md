@@ -7,20 +7,6 @@ por *significado* — você decide o que ensinar e como apresentar, nunca que ma
 escrever. Todos estão disponíveis globalmente: use-os sem `import`. Quando nenhum
 servir, peça um Esboço ao Desenvolvedor.
 
-## Kicker
-
-O selo que abre a Aula, situando domínio e lição (ex.: "CLF-C02 · Lição 07 · Domínio 3 — Storage"). Use uma vez, no topo, para orientar o aluno antes do conteúdo.
-
-**Props**
-
-| Prop | Tipo | Obrigatório | Padrão | Descrição |
-| --- | --- | --- | --- | --- |
-| `tone` | `"aws" \| "accent"` | não | `"aws"` | Tom da pílula: "aws" (padrão, o azul-marinho) ou "accent". |
-
-**Conteúdo**
-
-- `children` — O texto do selo.
-
 ## MissionBox
 
 Abre a Aula enquadrando "por que isto importa". Use logo após o título, para dar o sentido antes do conteúdo.

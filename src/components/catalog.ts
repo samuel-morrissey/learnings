@@ -2,7 +2,6 @@ import Callout from "./Callout.astro";
 import MissionBox from "./MissionBox.astro";
 import AskBox from "./AskBox.astro";
 import Sources from "./Sources.astro";
-import Kicker from "./Kicker.astro";
 import Nav from "./Nav.astro";
 import CompareCards from "./CompareCards.astro";
 import Quiz from "./Quiz.astro";
@@ -20,7 +19,6 @@ export const catalog = {
   MissionBox,
   AskBox,
   Sources,
-  Kicker,
   Nav,
   CompareCards,
   Quiz,

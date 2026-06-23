@@ -38,21 +38,6 @@ export interface CatalogComponent {
 
 export const catalogComponents: CatalogComponent[] = [
   {
-    name: "Kicker",
-    whenToUse:
-      'O selo que abre a Aula, situando domínio e lição (ex.: "CLF-C02 · Lição 07 · Domínio 3 — Storage"). Use uma vez, no topo, para orientar o aluno antes do conteúdo.',
-    props: [
-      {
-        name: "tone",
-        type: '"aws" | "accent"',
-        required: false,
-        default: '"aws"',
-        description: 'Tom da pílula: "aws" (padrão, o azul-marinho) ou "accent".',
-      },
-    ],
-    slots: [{ name: "children", description: "O texto do selo." }],
-  },
-  {
     name: "MissionBox",
     whenToUse:
       'Abre a Aula enquadrando "por que isto importa". Use logo após o título, para dar o sentido antes do conteúdo.',

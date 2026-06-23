@@ -1,8 +1,8 @@
 ---
 // The Kicker: the domain/lesson seal that opens a Lesson (e.g.
-// "CLF-C02 · Lição 07 · Domínio 3 — Storage"). One definition for the badge
-// markup, reused by the Lesson shell *and* available in MDX without an import,
-// so teach-v3 can author a Kicker by hand exactly as teach-v2 did in HTML.
+// "Domínio 3 — Storage · ~7 min"). Page chrome owned by the Plataforma — the
+// Lesson shell renders it from Frontmatter. Deliberately NOT in the Catalog, so
+// the Professor never authors the seal and it can never be duplicated in MDX.
 interface Props {
   /** Brand tone of the pill; defaults to the AWS navy used today. */
   tone?: "aws" | "accent";
