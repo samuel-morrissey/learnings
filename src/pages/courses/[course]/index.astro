@@ -1,4 +1,7 @@
 ---
+// Static during the migration: built from the filesystem, not Firestore.
+export const prerender = true;
+
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { buildSiteModel } from "../../../lib/site-model";
 import { COURSES_DIR } from "../../../lib/paths";
