@@ -12,13 +12,19 @@
     "gen:guide": "node scripts/generate-catalog-guide.mts",
     "gen:guide:check": "node scripts/generate-catalog-guide.mts --check",
     "gen:frontmatter-guide": "node scripts/generate-frontmatter-guide.mts",
-    "gen:frontmatter-guide:check": "node scripts/generate-frontmatter-guide.mts --check"
+    "gen:frontmatter-guide:check": "node scripts/generate-frontmatter-guide.mts --check",
+    "seed:firestore": "node scripts/seed-firestore.mts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/mdx": "^6.0.3",
+    "@astrojs/node": "^10.1.4",
+    "@mdx-js/mdx": "^3.1.1",
     "astro": "^6.4.8",
+    "firebase-admin": "^14.1.0",
     "gray-matter": "^4.0.3",
+    "preact": "^10.29.3",
+    "preact-render-to-string": "^6.7.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9",
     "zod": "^4.4.3"

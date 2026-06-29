@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
+import node from "@astrojs/node";
 
 // Wrap every Markdown/MDX `<table>` in a `.table-scroll` container so wide
 // comparison tables scroll horizontally inside the Lesson card instead of
@@ -27,18 +28,22 @@ function rehypeTableScroll() {
   };
 }
 
-// Static, build-time output: the Platform renders the Lessons once and ships
-// plain files, preserving the lightweight, offline-friendly PWA.
+// SSR output: the Platform now renders Lessons per request, reading them from
+// Firestore (ADR 0005). The Node adapter (standalone) is the server Firebase
+// App Hosting runs, and what `astro build && node ./dist/server/entry.mjs`
+// serves locally. The existing static catalog pages opt back into build-time
+// rendering with `export const prerender = true`, so this tracer-bullet slice
+// adds one SSR Lesson route without re-rendering the rest of the site per hit.
 //
-// `site` + `base` target the project's GitHub Pages URL, which serves under the
-// repo subpath (`/learnings/`). Every internal link and asset goes through
-// `import.meta.env.BASE_URL`, so they all resolve under that prefix once built.
+// `site` + `base` are kept from the GitHub Pages era for now; the migration of
+// the static pages and the host swap land in later slices of the parent PRD.
 export default defineConfig({
   site: "https://morrisseybr.github.io",
   // Trailing slash kept so `import.meta.env.BASE_URL` joins cleanly with the
   // `${base}courses/...` links and PWA hrefs (it is used verbatim, not normalized).
   base: "/learnings/",
-  output: "static",
+  output: "server",
+  adapter: node({ mode: "standalone" }),
   integrations: [mdx()],
   // `@astrojs/mdx` extends this Markdown config by default, so the table-scroll
   // wrapper applies to the `.mdx` Lessons too.
