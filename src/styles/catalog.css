@@ -1,0 +1,52 @@
+/*
+ * Catalog styles for the runtime-rendered (Preact) Components. Astro's
+ * per-component `<style>` scoping only exists inside `.astro`; once a Component
+ * is rendered from runtime MDX it is plain Preact, so its CSS lives here and is
+ * imported once by the Lesson shell. Rules are namespaced under each Component's
+ * root class (`.callout`, …) to stand in for that scoping. As the rest of the
+ * Catalog is ported to Preact, its styles join this file.
+ */
+
+/* Callout — the first ported Component (tracer bullet, issue #22). These rules
+ * mirror the scoped `<style>` still in src/components/Callout.astro: during the
+ * migration both render paths are live (the static catalog route uses the
+ * `.astro` Callout, the /live SSR route uses the Preact one). When the static
+ * route retires (later slice of PRD #21), Callout.astro and its copy go, leaving
+ * this as the single source. Keep the two in sync until then. */
+.callout {
+  display: flex;
+  gap: 10px;
+  border-left: 4px solid var(--info);
+  background: var(--info-bg);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 18px 0;
+  font-size: 14.5px;
+}
+.callout__icon {
+  flex: none;
+  line-height: 1.5;
+}
+.callout__body {
+  min-width: 0;
+}
+/* First/last children flush so the box hugs its content. */
+.callout__body > :first-child {
+  margin-top: 0;
+}
+.callout__body > :last-child {
+  margin-bottom: 0;
+}
+
+.callout--info {
+  border-left-color: var(--info);
+  background: var(--info-bg);
+}
+.callout--warn {
+  border-left-color: var(--warn);
+  background: var(--warn-bg);
+}
+.callout--ok {
+  border-left-color: var(--ok);
+  background: var(--ok-bg);
+}

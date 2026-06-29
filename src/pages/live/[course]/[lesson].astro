@@ -1,0 +1,45 @@
+---
+// The tracer-bullet route (issue #22): a single Lesson rendered from Firestore
+// via SSR. No `prerender` — this runs per request. It reads the document through
+// the thin Firestore adapter, compiles the stored `mdx` at runtime, and renders
+// the Preact Catalog by name. The shell (LessonLayout/BaseLayout) stays `.astro`.
+//
+// This is the happy path only: no validation, no per-block fallback, no Esboço
+// wiring yet — those are later slices of the parent PRD (#21).
+import LessonLayout from "../../../layouts/LessonLayout.astro";
+import { readLesson, readCourseTitle } from "../../../lib/firestore";
+import { renderAula } from "../../../lib/render-aula";
+import { Callout } from "../../../components/preact/Callout";
+import "../../../styles/catalog.css";
+
+const { course, lesson } = Astro.params;
+
+const record = await readLesson(course!, lesson!);
+if (!record) {
+  return new Response(`Aula não encontrada: ${course}/${lesson}`, {
+    status: 404,
+  });
+}
+
+// The human Course title lives on the parent `courses/{course}` doc, not the
+// Lesson; fall back to the path id if it is missing.
+const courseTitle = (await readCourseTitle(record.course)) ?? record.course;
+
+// The Preact Catalog mapped by name. Only Callout is ported in this slice — the
+// rest of the Catalog and the Esboço binding (record.esbocos) arrive later.
+const components = { Callout };
+const body = await renderAula(record.mdx, components);
+
+const base = import.meta.env.BASE_URL;
+---
+
+<LessonLayout
+  title={record.title}
+  domain={record.domain}
+  summary={record.summary}
+  estMinutes={record.estMinutes}
+  courseTitle={courseTitle}
+  courseHref={`${base}courses/${record.course}/`}
+>
+  <Fragment set:html={body} />
+</LessonLayout>

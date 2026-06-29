@@ -5,3 +5,9 @@
 dist/
 node_modules/
 .astro/
+
+# Service account keys and local env — credentials never get committed
+secrets/
+*.sa.json
+.env
+.env.*

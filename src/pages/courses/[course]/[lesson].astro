@@ -1,4 +1,8 @@
 ---
+// Static during the migration: the current Lessons render from `.mdx` files at
+// build time. The Firestore-backed SSR Lesson lives at /live/[course]/[lesson].
+export const prerender = true;
+
 import { getEntry, render } from "astro:content";
 import LessonLayout from "../../../layouts/LessonLayout.astro";
 import { catalog } from "../../../components/catalog";
