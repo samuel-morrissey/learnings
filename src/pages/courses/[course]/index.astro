@@ -1,20 +1,15 @@
 ---
-// Static during the migration: built from the filesystem, not Firestore.
-export const prerender = true;
-
+// SSR (issue #25): a Course page lists its Lessons (ordered by `order`) from
+// Firestore per request. The human title comes from the Course document field.
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { buildSiteModel } from "../../../lib/site-model";
-import { COURSES_DIR } from "../../../lib/paths";
+import { readCourse } from "../../../lib/firestore";
 
-export function getStaticPaths() {
-  const { courses } = buildSiteModel(COURSES_DIR);
-  return courses.map((course) => ({
-    params: { course: course.name },
-    props: { course },
-  }));
+const { course: courseName } = Astro.params;
+const course = await readCourse(courseName!);
+if (!course) {
+  return new Response(`Curso não encontrado: ${courseName}`, { status: 404 });
 }
 
-const { course } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
 

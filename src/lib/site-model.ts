@@ -1,14 +1,20 @@
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
-
-import { lessonFrontmatter, type LessonFrontmatter } from "./frontmatter";
+import type { LessonFrontmatter } from "./frontmatter";
 
 export interface Lesson extends LessonFrontmatter {
-  /** Filename without the `.mdx` extension, e.g. "0001-intro". */
+  /** Document id under the Course's `lessons` subcollection, e.g. "0001-intro". */
   slug: string;
-  /** Owning course folder name, e.g. "aws". */
+  /** Owning Course id, e.g. "aws". */
   course: string;
+}
+
+/**
+ * A Course as fetched from the store: just its id and the human `title` field
+ * of the `courses/{id}` document (ADR 0005). The Lessons are supplied
+ * separately and joined here by `name`.
+ */
+export interface CourseRecord {
+  name: string;
+  title: string;
 }
 
 export interface Course {
@@ -23,91 +29,44 @@ export interface SiteModel {
 }
 
 /**
- * Discovers Courses and Lessons from `courses/<course>/lessons/*.mdx` and
- * returns the pure navigation model — the successor to the old
- * scripts/site-model.js, now reading MDX Frontmatter instead of HTML.
+ * The navigation model as a pure function over records already fetched from the
+ * store — the seam (Seam D) the Firestore adapter and the transitional
+ * filesystem adapter both feed (issue #25). It does no I/O: it groups Lessons
+ * under their Course, orders Courses by name and Lessons by `order` (slug as a
+ * stable tiebreak), and drops Courses with no Lessons.
  *
- * Only `.mdx` files inside a `lessons/` folder count as Lessons, so non-Lesson
- * content (learning-records/, reference/, .claude/) stays out. Courses with no
- * `.mdx` lessons yet (not migrated) are omitted. Frontmatter is validated; an
- * invalid Lesson throws, naming the file, so the build fails early.
- *
- * @param coursesDir absolute path to the `courses/` directory
+ * A Lesson whose `course` has no matching record is ignored: the Course list is
+ * the source of truth for what the hub shows. The `title` comes straight from
+ * the Course record — no MISSION.md, no folder-name inference.
  */
-export function buildSiteModel(coursesDir: string): SiteModel {
-  const courses: Course[] = [];
+export function buildSiteModel(
+  courses: CourseRecord[],
+  lessons: Lesson[],
+): SiteModel {
+  const byCourse = new Map<string, Lesson[]>();
+  for (const lesson of lessons) {
+    const list = byCourse.get(lesson.course);
+    if (list) list.push(lesson);
+    else byCourse.set(lesson.course, [lesson]);
+  }
 
-  const entries = fs
-    .readdirSync(coursesDir, { withFileTypes: true })
-    .filter((e) => e.isDirectory())
-    .sort((a, b) => compare(a.name, b.name));
-
-  for (const entry of entries) {
-    const lessonsDir = path.join(coursesDir, entry.name, "lessons");
-    if (!isDirectory(lessonsDir)) continue;
-
-    const lessons = fs
-      .readdirSync(lessonsDir, { withFileTypes: true })
-      .filter((f) => f.isFile() && f.name.endsWith(".mdx"))
-      .map((f) => readLesson(entry.name, path.join(lessonsDir, f.name), f.name))
+  const model: Course[] = [];
+  for (const course of [...courses].sort((a, b) => compare(a.name, b.name))) {
+    const courseLessons = (byCourse.get(course.name) ?? [])
+      .slice()
       .sort((a, b) => a.order - b.order || compare(a.slug, b.slug));
 
-    if (lessons.length === 0) continue;
+    if (courseLessons.length === 0) continue;
 
-    courses.push({
-      name: entry.name,
-      title: courseTitle(coursesDir, entry.name),
-      lessonCount: lessons.length,
-      lessons,
+    model.push({
+      name: course.name,
+      title: course.title,
+      lessonCount: courseLessons.length,
+      lessons: courseLessons,
     });
   }
 
-  return { courses };
-}
-
-function readLesson(course: string, filePath: string, fileName: string): Lesson {
-  const { data } = matter(fs.readFileSync(filePath, "utf8"));
-  const parsed = lessonFrontmatter.safeParse(data);
-  if (!parsed.success) {
-    throw new Error(
-      `Invalid Frontmatter in ${course}/lessons/${fileName}:\n${formatIssues(parsed.error)}`
-    );
-  }
-  return {
-    ...parsed.data,
-    slug: fileName.replace(/\.mdx$/, ""),
-    course,
-  };
-}
-
-function courseTitle(coursesDir: string, name: string): string {
-  const missionPath = path.join(coursesDir, name, "MISSION.md");
-  if (fs.existsSync(missionPath)) {
-    const heading = fs
-      .readFileSync(missionPath, "utf8")
-      .match(/^#\s+(.+?)\s*$/m);
-    if (heading) return heading[1].replace(/^mission:\s*/i, "").trim();
-  }
-  return formatFolderName(name);
-}
-
-// Turn a folder slug into Title Case words: "machine-learning" -> "Machine Learning".
-function formatFolderName(name: string): string {
-  return name
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
-function formatIssues(error: { issues: { path: PropertyKey[]; message: string }[] }): string {
-  return error.issues
-    .map((i) => `  - ${i.path.join(".") || "(root)"}: ${i.message}`)
-    .join("\n");
-}
-
-function isDirectory(p: string): boolean {
-  return fs.existsSync(p) && fs.statSync(p).isDirectory();
+  return { courses: model };
 }
 
 // Stable, locale-independent ordering so order is identical across platforms

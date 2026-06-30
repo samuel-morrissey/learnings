@@ -1,7 +1,14 @@
 import { cert, getApps, initializeApp, applicationDefault } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, type DocumentData } from "firebase-admin/firestore";
 
 import type { LessonFrontmatter } from "./frontmatter";
+import {
+  buildSiteModel,
+  type Course,
+  type CourseRecord,
+  type Lesson,
+  type SiteModel,
+} from "./site-model";
 
 /**
  * A Lesson as it lives in Firestore: the Frontmatter promoted to first-class
@@ -66,6 +73,92 @@ export async function readLesson(
 export async function readCourseTitle(course: string): Promise<string | null> {
   const snap = await db().collection("courses").doc(course).get();
   if (!snap.exists) return null;
-  const title = snap.data()?.title;
-  return typeof title === "string" ? title : null;
+  return titleField(snap.data());
+}
+
+// The Course's human title, or `null` when the `title` field is absent, not a
+// string, or blank — the single rule both the back-link reader and the listing
+// adapter share, so a blank title can never render as an empty heading.
+function titleField(data: DocumentData | undefined): string | null {
+  const title = data?.title;
+  return typeof title === "string" && title.trim() !== "" ? title : null;
+}
+
+// The listing Frontmatter fields a Lesson document carries — everything except
+// the heavy `mdx` body and the `esbocos` binding, which the listings never
+// show. Projecting them keeps the hub/Course queries small even as Lessons grow.
+const LESSON_LIST_FIELDS = [
+  "title",
+  "order",
+  "domain",
+  "summary",
+  "prerequisites",
+  "estMinutes",
+] as const;
+
+function toLesson(course: string, slug: string, data: DocumentData): Lesson {
+  return {
+    title: data.title,
+    order: data.order,
+    domain: data.domain,
+    summary: data.summary,
+    prerequisites: data.prerequisites ?? [],
+    estMinutes: data.estMinutes,
+    course,
+    slug,
+  };
+}
+
+function courseTitle(data: DocumentData | undefined, fallback: string): string {
+  return titleField(data) ?? fallback;
+}
+
+/**
+ * The hub model: every Course (with at least one Lesson) and its ordered
+ * Lessons, read from Firestore (issue #25). One Course query plus a single
+ * `lessons` collection-group query (projected, no `mdx`) feed the pure
+ * `buildSiteModel` — the read stays a thin adapter outside the seam.
+ */
+export async function readSiteModel(): Promise<SiteModel> {
+  const firestore = db();
+  const [courseSnap, lessonSnap] = await Promise.all([
+    firestore.collection("courses").get(),
+    firestore.collectionGroup("lessons").select(...LESSON_LIST_FIELDS).get(),
+  ]);
+
+  const courses: CourseRecord[] = courseSnap.docs.map((doc) => ({
+    name: doc.id,
+    title: courseTitle(doc.data(), doc.id),
+  }));
+
+  const lessons: Lesson[] = lessonSnap.docs.flatMap((doc) => {
+    // A `lessons` doc lives at courses/{course}/lessons/{slug}; its grandparent
+    // ref is the Course document, whose id is the Course name. A collection-group
+    // query matches *any* `lessons` collection, so skip a stray top-level one
+    // (grandparent `null`) rather than crash the whole hub on it.
+    const courseDoc = doc.ref.parent.parent;
+    return courseDoc ? [toLesson(courseDoc.id, doc.id, doc.data())] : [];
+  });
+
+  return buildSiteModel(courses, lessons);
+}
+
+/**
+ * One Course with its ordered Lessons, or `null` when the Course document does
+ * not exist (so the route can answer 404). Reuses `buildSiteModel` over
+ * single-Course records, so ordering and the no-Lessons exclusion match the hub.
+ */
+export async function readCourse(course: string): Promise<Course | null> {
+  const courseRef = db().collection("courses").doc(course);
+  const [courseSnap, lessonSnap] = await Promise.all([
+    courseRef.get(),
+    courseRef.collection("lessons").select(...LESSON_LIST_FIELDS).get(),
+  ]);
+
+  if (!courseSnap.exists) return null;
+
+  const record: CourseRecord = { name: course, title: courseTitle(courseSnap.data(), course) };
+  const lessons = lessonSnap.docs.map((doc) => toLesson(course, doc.id, doc.data()));
+
+  return buildSiteModel([record], lessons).courses[0] ?? null;
 }
