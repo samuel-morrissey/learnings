@@ -8,7 +8,16 @@ runConfig:
   # memoryMiB: 512
 
 # Environment variables and secrets.
-# env:
+env:
+  # The @astrojs/node standalone server binds to process.env.HOST (default
+  # `localhost`). On Cloud Run that fails the startup TCP probe with
+  # DEADLINE_EXCEEDED, since the probe can't reach a loopback-only bind.
+  # Binding to 0.0.0.0 lets the probe and real traffic reach it on PORT=8080.
+  - variable: HOST
+    value: "0.0.0.0"
+    availability:
+      - RUNTIME
+
   # Configure environment variables.
   # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
   # - variable: MESSAGE
