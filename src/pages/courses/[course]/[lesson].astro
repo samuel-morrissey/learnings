@@ -7,11 +7,11 @@ import { getEntry, render } from "astro:content";
 import LessonLayout from "../../../layouts/LessonLayout.astro";
 import { catalog } from "../../../components/catalog";
 import { sketchesFor } from "../../../sketches/registry";
-import { buildSiteModel } from "../../../lib/site-model";
+import { readSiteModelFromFs } from "../../../lib/site-model-fs";
 import { COURSES_DIR } from "../../../lib/paths";
 
 export function getStaticPaths() {
-  const { courses } = buildSiteModel(COURSES_DIR);
+  const { courses } = readSiteModelFromFs(COURSES_DIR);
   return courses.flatMap((course) =>
     course.lessons.map((lesson) => ({
       params: { course: course.name, lesson: lesson.slug },

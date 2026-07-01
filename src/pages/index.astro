@@ -1,14 +1,10 @@
 ---
-// Static during the migration: this page reads the filesystem (not Firestore),
-// so it prerenders at build time even though the Platform now defaults to SSR.
-export const prerender = true;
-
+// SSR (issue #25): the hub lists Courses from Firestore per request — no build,
+// no filesystem. Every Course (with at least one Lesson) and its Lesson count.
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { buildSiteModel } from "../lib/site-model";
-import { COURSES_DIR } from "../lib/paths";
+import { readSiteModel } from "../lib/firestore";
 
-// The hub: every Course (with at least one MDX Lesson) and its Lesson count.
-const { courses } = buildSiteModel(COURSES_DIR);
+const { courses } = await readSiteModel();
 const base = import.meta.env.BASE_URL;
 ---
 
