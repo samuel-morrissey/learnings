@@ -1,7 +1,7 @@
 /**
  * The one-shot migration (issue #27): seed the Firestore that becomes the single
- * source of truth from every `courses/*/lessons/*.mdx` in the repo. Run once,
- * against your own Firebase project, with the **read/write** service account:
+ * source of truth from every `.mdx` under `courses/<curso>/lessons/` in the repo.
+ * Run once, against your own Firebase project, with the **read/write** account:
  *
  *   FIRESTORE_ADMIN_KEY=./secrets/admin.sa.json npm run seed:firestore
  *
