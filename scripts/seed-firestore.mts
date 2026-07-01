@@ -3,7 +3,7 @@
  * source of truth from every `.mdx` under `courses/<curso>/lessons/` in the repo.
  * Run once, against your own Firebase project, with the **read/write** account:
  *
- *   FIRESTORE_ADMIN_KEY=./secrets/admin.sa.json npm run seed:firestore
+ *   FIRESTORE_ADMIN_KEY=./secrets/admin-sa.json npm run seed:firestore
  *
  * For each Course it writes `courses/{course}` (name, human title from
  * MISSION.md, order) and one `courses/{course}/lessons/{slug}` per Lesson
