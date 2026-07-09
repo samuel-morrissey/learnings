@@ -135,8 +135,27 @@ Vocabulário canônico. Toda lição deve usar estes termos de forma consistente
 - **Disponibilidade = "consigo acessar agora"** — garantia de que o serviço responde quando peço. S3
   Standard: **~99,99% (4 noves)**. Já é muito, mas mostra que **o acesso pode ser comprometido com mais
   frequência que a perda do dado** — as duas promessas são diferentes, e os 11 noves são de *durabilidade*.
-- *(Classes de armazenamento — Standard, Intelligent-Tiering, IA, Glacier — trocam custo por velocidade
-  de acesso; detalhadas na Lição 08.)*
+### Classes de armazenamento do S3 (Lição 08 — o sub-tópico de S3 que mais cai)
+- **A régua mestra (do Samuel):** a escolha é sempre entre **caro-e-frequente ⇄ barato-e-pouco-usado**.
+  De um lado, acesso com frequência **sem taxa** mas pago **caro por GB**; no meio-termo, **pago taxa
+  por acesso** mas guardo barato; no fim do espectro, guardar GB é **baratíssimo** mas posso ter que
+  **esperar horas** para acessar. **O que NÃO muda em nenhuma classe: os 11 noves de durabilidade.**
+- **As 3 temperaturas:**
+  - **Quente** — caro guardar, **sem taxa de acesso**, disponível na hora (ex.: **S3 Standard**).
+  - **Morno** — **taxa de acesso** para dados usados menos, mas mais barato guardar (ex.: **Standard-IA**,
+    **One Zone-IA**).
+  - **Frio** — guardar é baratíssimo, mas recuperar é **caro e/ou lento** (ex.: as três **Glacier**).
+- **Standard-IA vs One Zone-IA** — mesma ideia de acesso infrequente; a One Zone **isola o dado numa
+  única AZ** (abre mão da redundância entre zonas) e por isso é ~20% mais barata. A durabilidade de
+  projeto ainda é **11 noves**, mas **medida dentro daquela AZ** — se a AZ inteira sumir, o dado se
+  perde. Logo: **só para dado recriável**. (Mesma régua do multi-AZ do ELB/ASG.)
+- **Intelligent-Tiering** — o "piloto automático": quando você **não sabe** o padrão de acesso, a AWS
+  monitora e **move o objeto entre camadas sozinha**, cobrando uma pequena taxa de monitoramento.
+- **Pegadinha — o dado frio cobra por dois lados:** (1) **taxa de recuperação** e (2) **duração mínima
+  de armazenamento**, que você paga **mesmo deletando antes**. E o mínimo **cresce conforme esfria**:
+  Standard-IA / One Zone-IA = **30 dias**; Glacier = **90 dias**; Deep Archive = até **180 dias**.
+- **Ciclo de vida (lifecycle):** regras que **movem objetos automaticamente** para classes mais frias
+  (ou os expiram) conforme envelhecem — o jeito operacional de aplicar a régua sem trabalho manual.
 
 ## Termos a definir nas próximas lições
 - Shared Responsibility Model, IAM, VPC, RDS, Free Tier, Well-Architected.
