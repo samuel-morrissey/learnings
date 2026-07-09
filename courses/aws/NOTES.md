@@ -53,10 +53,20 @@
   Escopo (uma coisa só): serverless = não gerenciar servidor; orientado a evento; pay-per-invocation;
   ancorada no CONTRASTE com EC2 (contínuo→EC2 / esporádico→Lambda), limite de 15 min, cold start.
   Fundamentada na doc oficial (welcome.html). Nav da Lição 08 atualizado para apontar para a 09.
-  AGUARDANDO produção ativa (cheat sheet EC2×Lambda) → ainda NÃO aprendida; criar verbete de compute
-  serverless no glossário a partir da compressão dele.
-- D3 próximos: **Lição 10 = contêineres (ECS/Fargate)** (Nav da 09 já aponta pra ela como "em breve");
-  depois bancos (RDS/DynamoDB) e rede (VPC).
+  **APRENDIDA em 09/07**: quiz 5/5 + teach-back forte (ver LR-0012). Correção única: billing do Lambda
+  = nº requisições + GB-segundos (memória×tempo), NÃO "tráfego de dados". Verbete de compute serverless
+  criado no glossário com a régua EC2×Lambda dele. Lambda na fila de revisão (a frio 14/07).
+- Fechamento GB-segundos (09/07): ele recomprimiu correto — "requisição + GB de memória alocada por
+  segundo; mede a carga de memória no tempo de execução, não só o tempo bruto". Verbete do glossário
+  atualizado com a redação dele. Correção do Lambda-billing plenamente absorvida.
+- Lição 10 = **contêineres (ECS/Fargate)**: CRIADA + ENTREGUE em 09/07 (a pedido dele, para estudar
+  depois). Escopo: contêiner vs VM (compartilha kernel), orquestração (ECR guarda / ECS·EKS orquestra),
+  launch type EC2 vs Fargate (serverless p/ contêiner), e o ESPECTRO de compute que fecha o D3
+  (EC2 → ECS/EC2 → Fargate → Lambda por "quanto você gerencia"). Fundamentada em ECS welcome + Fargate.
+  Nav 09→10 costurado. AGUARDANDO produção ativa (cheat sheet do espectro) → ainda NÃO aprendida;
+  criar verbete de contêineres no glossário a partir da compressão dele.
+- D3 próximos: **Lição 11 = bancos de dados (RDS/DynamoDB)** (Nav da 10 aponta pra ela como "em breve");
+  depois rede (VPC). Compute do D3 encerrado (EC2 · ASG/ELB · Lambda · contêineres).
 - D2: Modelo de Responsabilidade Compartilhada (muito cobrado) — Q4 das Lições 04/05 já planta a semente.
 - D2: IAM (usuários, grupos, roles, políticas, MFA).
 - D3: serviços core de compute/storage/database/network (EC2, S3, RDS, VPC...).

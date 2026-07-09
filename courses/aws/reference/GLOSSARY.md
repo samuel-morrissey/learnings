@@ -64,6 +64,25 @@ Vocabulário canônico. Toda lição deve usar estes termos de forma consistente
     único que oferece **reserva de capacidade** (garante instância disponível numa AZ específica).
   - Regra: flexibilidade/uso estável → Savings Plans; garantir capacidade numa AZ → RI.
 
+### AWS Lambda — compute serverless (Domínio 3)
+- **Serverless** — não é "sem servidor": o servidor existe, mas **a AWS o gerencia** (provisão, escala,
+  patches, desligamento no idle). Você entrega só o **código (função handler)**.
+- **AWS Lambda** — serviço de compute serverless: roda a função **disparada por um evento** (upload no
+  S3, chamada via API Gateway, mensagem SQS, EventBridge…), **escala sozinho** e some quando não há uso.
+- **EC2 × Lambda (a régua do Samuel):**
+  - **EC2** — instancia a máquina e **cobra por tempo em funcionamento, mesmo ociosa**; estável, aceita
+    processos longos, **sem cold-start** depois de instanciada, custo previsível — mas você cuida do
+    SO/patches e configura a **escala horizontal**.
+  - **Lambda** — a AWS cuida do provisionamento/execução/desligamento; você **paga só o que usa**, mas
+    pode ter **cold start** após ociosidade longa. Decisão: carga **contínua → EC2**;
+    **esporádica/orientada a evento → Lambda**.
+- **Como o Lambda cobra:** **por requisição (função disparada) + GB-segundos** = **memória alocada ×
+  tempo de execução**. GB-segundos é mais preciso que "tempo bruto" porque cobra pela **carga de memória
+  mantida durante a execução** — mais RAM e/ou mais tempo = mais caro (redação do Samuel). ⚠️ **Não** é
+  volume de dados trafegados. Sem invocação, custo ~zero.
+- **Limite decisivo:** **15 minutos por invocação** — job mais longo que isso não cabe no Lambda (vai
+  para EC2/contêiner).
+
 ## Elasticidade na prática (Domínio 3)
 - **Elastic Load Balancing (ELB)** — distribui o tráfego de entrada entre várias instâncias (alvos),
   em uma ou mais AZs. Faz **health checks** e só roteia para instâncias saudáveis → mais
