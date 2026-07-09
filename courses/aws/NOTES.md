@@ -41,13 +41,22 @@
   (recuperação A FRIO do erro de 18/06!) → corretos, promovidos. As 6 vantagens: 5/6, buraco RECORRENTE
   = o 2º gêmeo da Flexibilidade (**velocidade/agilidade**); re-cementou com gancho causal próprio
   ("só paro de adivinhar porque reajo rápido"); volta em 4 dias (26/06) mirando esse par.
-- Lição 08 = **classes de armazenamento do S3**: CRIADA + ENTREGUE em 22/06. Escopo: princípio único
-  (barato-guardar ⇄ caro/lento-acessar, 11 noves em todas), 3 temperaturas, funil de decisão
-  (Standard → Intelligent-Tiering → Standard-IA → One Zone-IA → Glacier ×3), pegadinha da taxa de
-  recuperação + duração mínima, ciclo de vida. AGUARDANDO produção ativa (pseudo cheat sheet) → ainda
-  NÃO aprendida; criar verbete de classes no glossário a partir da compressão dele.
-- D3 próximos: **Lição 09 = Lambda/serverless**; depois contêineres (ECS/Fargate), bancos
-  (RDS/DynamoDB) e rede (VPC).
+- Lição 08 = **classes de armazenamento do S3**: CRIADA + ENTREGUE em 22/06; **APRENDIDA em 08/07**
+  (pseudo cheat sheet escrito de memória, ver LR-0011). Régua mestra + 3 temperaturas + Standard-IA vs
+  One Zone-IA saíram sozinhos; pergunta autoral forte ("One Zone tb é 11 noves?"). Correções: duração
+  mínima cresce ao esfriar (IA 30d / Glacier 90d / Deep Archive 180d, não 30 pra tudo) e faltou citar
+  Intelligent-Tiering. Verbete de classes criado no glossário com a redação dele.
+- Sessão 08/07 (retorno após 16 dias parado) abriu com revisão: S3 fundamentos impecáveis (→ estágio 2);
+  6 vantagens falhou+RECUPEROU (verificar a frio 11/07); **EC2: raciocínio ótimo mas NOMES não fixam**
+  (zerou Dedicated Hosts) → tratar nomes como item próprio, priorizar produção de rótulos.
+- Lição 09 = **AWS Lambda / serverless**: CRIADA + ENTREGUE em 09/07 (MCP `aulas` reconectado via `/mcp`).
+  Escopo (uma coisa só): serverless = não gerenciar servidor; orientado a evento; pay-per-invocation;
+  ancorada no CONTRASTE com EC2 (contínuo→EC2 / esporádico→Lambda), limite de 15 min, cold start.
+  Fundamentada na doc oficial (welcome.html). Nav da Lição 08 atualizado para apontar para a 09.
+  AGUARDANDO produção ativa (cheat sheet EC2×Lambda) → ainda NÃO aprendida; criar verbete de compute
+  serverless no glossário a partir da compressão dele.
+- D3 próximos: **Lição 10 = contêineres (ECS/Fargate)** (Nav da 09 já aponta pra ela como "em breve");
+  depois bancos (RDS/DynamoDB) e rede (VPC).
 - D2: Modelo de Responsabilidade Compartilhada (muito cobrado) — Q4 das Lições 04/05 já planta a semente.
 - D2: IAM (usuários, grupos, roles, políticas, MFA).
 - D3: serviços core de compute/storage/database/network (EC2, S3, RDS, VPC...).

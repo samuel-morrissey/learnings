@@ -19,6 +19,11 @@
   Princípios de preço. Use para: Domínio 4 — billing e pricing.
 - [Shared Responsibility Model](https://aws.amazon.com/compliance/shared-responsibility-model/)
   Modelo de responsabilidade compartilhada. Use para: Domínio 2 — segurança (muito cobrado).
+- [What is AWS Lambda (Developer Guide)](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
+  Definição oficial de serverless/Lambda, modelo orientado a evento, cobrança e limite de 15 min.
+  Use para: Domínio 3 — compute serverless (Lição 09).
+- [Serverless on AWS](https://aws.amazon.com/serverless/) · [AWS Lambda Pricing](https://aws.amazon.com/lambda/pricing/)
+  Panorama serverless e o modelo de cobrança por requisição + GB-segundos. Use para: custo de Lambda.
 - [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
   Os pilares de boa arquitetura. Use para: Domínio 1/3 — boas práticas.
 
