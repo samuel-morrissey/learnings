@@ -1,10 +1,10 @@
 {
   "mcpServers": {
-    "aulas": {
-      "command": "node",
-      "args": ["--import", "tsx", "scripts/mcp-server.mts"],
-      "env": {
-        "FIRESTORE_ADMIN_KEY": "${FIRESTORE_ADMIN_KEY:-./secrets/admin-sa.json}"
+    "life-os": {
+      "type": "http",
+      "url": "${LIFE_OS_MCP_URL:-https://<app>.vercel.app/api/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${LIFE_OS_MCP_TOKEN}"
       }
     }
   }

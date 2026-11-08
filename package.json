@@ -4,39 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "start": "node ./dist/server/entry.mjs",
-    "preview": "astro preview",
-    "check": "astro check",
-    "test": "vitest run",
-    "gen:guide": "node scripts/generate-catalog-guide.mts",
-    "gen:guide:check": "node scripts/generate-catalog-guide.mts --check",
-    "gen:frontmatter-guide": "node scripts/generate-frontmatter-guide.mts",
-    "gen:frontmatter-guide:check": "node scripts/generate-frontmatter-guide.mts --check",
-    "seed:firestore": "node scripts/seed-firestore.mts",
-    "mcp": "tsx scripts/mcp-server.mts"
-  },
-  "dependencies": {
-    "@astrojs/check": "^0.9.9",
-    "@astrojs/node": "^10.1.4",
-    "@mdx-js/mdx": "^3.1.1",
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "astro": "^6.4.8",
-    "firebase-admin": "^14.1.0",
-    "gray-matter": "^4.0.3",
-    "mdast-util-from-markdown": "^2.0.3",
-    "mdast-util-mdx": "^3.0.0",
-    "micromark-extension-mdxjs": "^3.0.0",
-    "preact": "^10.29.3",
-    "preact-render-to-string": "^6.7.0",
-    "remark-gfm": "^4.0.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@types/node": "^26.0.0",
-    "tsx": "^4.22.4"
+    "test": "node --test"
   }
 }
