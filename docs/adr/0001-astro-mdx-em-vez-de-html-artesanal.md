@@ -1,5 +1,9 @@
 # Astro + MDX como plataforma de Aulas (substituindo o HTML artesanal)
 
+> **Superada pela [ADR 0007](./0007-learnings-vira-o-workspace-do-professor.md):** o Astro saiu do repositório, junto com a Plataforma.
+> As Aulas vivem no Life OS, que segue com o MDX e os Componentes do Catálogo
+> (agora em React).
+
 > **Realizada pela [ADR 0005](./0005-aulas-no-firestore-com-astro-ssr.md):** o
 > "Futuro previsto" abaixo aconteceu. As Aulas saíram dos arquivos para o
 > Firestore, `output` foi de `static` para `server`, e o render passou de

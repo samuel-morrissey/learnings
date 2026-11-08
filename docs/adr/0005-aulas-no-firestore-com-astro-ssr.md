@@ -4,6 +4,10 @@ status: accepted (realiza ADR 0001, refina ADR 0003)
 
 # Aulas e Cursos no Firestore, renderizadas por Astro SSR (fim do modelo estático)
 
+> **Superada pela [ADR 0007](./0007-learnings-vira-o-workspace-do-professor.md):** as Aulas e os Cursos saíram do Firestore para o Life
+> OS. O Astro SSR, o App Hosting e o Firestore saem; o render em runtime com
+> `@mdx-js/mdx` e o fallback por bloco seguem valendo, no Life OS.
+
 As Aulas e Cursos saem de `courses/*/lessons/*.mdx` (lidos no build) e passam a
 viver no **Firestore**: `courses/{id}` + subcoleção `lessons/{id}`, com o
 frontmatter como campos, o corpo como `mdx` (texto) e o binding de Esboços como
