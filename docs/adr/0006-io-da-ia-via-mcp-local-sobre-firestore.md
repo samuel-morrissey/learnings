@@ -1,5 +1,10 @@
 # I/O da IA via MCP local sobre o Firestore (dois service accounts)
 
+> **Superada pela [ADR 0007](./0007-learnings-vira-o-workspace-do-professor.md):** o MCP local sobre o Firestore saiu. O Professor fala
+> com o MCP remoto do Life OS (`/api/mcp`), com token por usuário, e as
+> ferramentas viraram `list_courses`, `get_lesson`, `write_lesson`,
+> `archive_lesson` e `get_catalog`. A validação na escrita segue valendo.
+
 O Professor e o Desenvolvedor deixam de ler/escrever Aulas no sistema de arquivos
 e passam a operar por um **servidor MCP local** (stdio, no `.mcp.json` do repo)
 que embrulha o **Firebase Admin SDK** e expõe ferramentas com a forma do domínio
