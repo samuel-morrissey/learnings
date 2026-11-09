@@ -1,16 +1,16 @@
 # learnings
 
-Hub de cursos/aulas que uma IA gera. A Plataforma é **Astro SSR** (Firebase App Hosting) e lê as Aulas do **Firestore**, renderizando em runtime o MDX com os Componentes do Catálogo (em **Preact**). A IA (Professor/Desenvolvedor) lê e escreve Aulas por um **servidor MCP local** sobre o Firestore — não mais por arquivos.
+O **workspace do Professor**. As Aulas e os Cursos vivem no **Life OS**, no contexto Aprendizado, e o Professor os lê e escreve pelo **MCP do Life OS** (servidor `life-os` do `.mcp.json`, token em `LIFE_OS_MCP_TOKEN`). Aqui ficam só a skill `/professor`, os formatos dela e o scratch de ensino em `courses/<id>/`. A Plataforma (Astro, Firebase, MCP local) saiu na fusão com o Life OS: [samuel-morrissey/life-os#184](https://github.com/samuel-morrissey/life-os/issues/184), [ADR 0007](docs/adr/0007-learnings-vira-o-workspace-do-professor.md). Como configurar o token: `README.md`.
 
 ## Agent skills
 
 ### Professor (`/professor`)
 
-O Professor deste repo, versionado em `.claude/skills/professor/` (fork da `teach-v2` global, lineage teach-v3). Invocado com o nome do Curso (`/professor <curso> …`); lê e escreve as **Aulas pelas ferramentas do MCP local** (`list_courses`, `read_aula`, `write_aula`, `delete_aula`) sobre o Firestore, com `write_aula` validando na hora e devolvendo erros estruturados. O scratch de ensino (`MISSION.md`, `RESOURCES.md`, `learning-records/`, `REVIEW.md`, `reference/`, `NOTES.md`) ainda vive em arquivos sob `courses/<nome>/`. Lê somente leitura `docs/catalog-guide.md` e `docs/frontmatter-guide.md`, e escreve Aulas em MDX escolhendo Componentes do Catálogo por significado. Cego à Plataforma (`src/`, build, `gh`) e aos demais Cursos. Quando o Catálogo não cobre um visual/interação, delega a um subagente que invoca `/professor-developer` (a escotilha orquestrada). See `.claude/skills/professor/SKILL.md`.
+O Professor deste repo, versionado em `.claude/skills/professor/` (fork da `teach-v2` global, lineage teach-v3). Invocado com o id do Curso (`/professor <curso> …`), que é o slug do Curso no Life OS e o nome da pasta de scratch. Chama `guide` no início da sessão, lê o Catálogo e o Frontmatter por `get_catalog` e as Aulas por `list_courses` e `get_lesson`; grava com `write_lesson`, que valida na hora (erro bloqueia; `sketch-not-deployed` e `prerequisite-missing` só avisam) e arquiva com `archive_lesson`, que para ele é definitivo (só o usuário desarquiva, pela tela do Life OS). O scratch de ensino (`MISSION.md`, `RESOURCES.md`, `learning-records/`, `REVIEW.md`, `reference/`, `NOTES.md`) vive em arquivos sob `courses/<id>/`. Cego à Plataforma e aos demais Cursos. Quando o Catálogo não cobre um visual, delega a um subagente que invoca `/professor-developer` no clone do Life OS. See `.claude/skills/professor/SKILL.md`.
 
 ### Desenvolvedor (`/professor-developer`)
 
-O Desenvolvedor deste repo (`.claude/skills/professor-developer/`, `disable-model-invocation: true`) — a outra ponta da escotilha orquestrada. A pedido do Professor (via subagente), recebe uma spec agnóstica de Plataforma (id da Aula, intenção, dados, flag `reutilizável`), constrói o Esboço como Componente **Preact** nos trilhos em `src/sketches/preact/`, registra-o no mapa empacotado `src/sketches/preact/index.ts`, valida (`npm run check` + teste Seam B em `tests/sketches-preact.test.ts`), e devolve ao Professor só o snippet de uso (`<Nome … />`), nunca código. Como o Esboço é código, ele só aparece após o deploy (`git push` → App Hosting); o binding vive em `esbocos[]` no documento da Aula (não mais no `registry.ts`) e o fallback cobre a janela até o deploy. Quando `reutilizável`, abre uma Solicitação de Componente. Nunca toca o Catálogo nem promove. See `.claude/skills/professor-developer/SKILL.md`.
+Não vive mais aqui: é a skill `.claude/skills/professor-developer/` do Life OS (`samuel-morrissey/life-os`), que constrói o Esboço em React e abre a Solicitação de Componente como issue de lá.
 
 ### Issue tracker
 
@@ -20,16 +20,18 @@ Issues e PRDs vivem como GitHub Issues do repositório (`gh` CLI); PRs externos 
 
 Vocabulário padrão (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
 
-### Solicitação de Componente
-
-O Desenvolvedor abre uma Issue `component-request` + `needs-triage` quando o Professor julga um Esboço reutilizável; um humano promove (Esboço → Componente). See `docs/agents/component-request.md`.
-
 ### Domain docs
 
 Single-context: um `CONTEXT.md` + `docs/adr/` na raiz. See `docs/agents/domain.md`.
 
+## Testes
+
+`npm test` roda `tests/workspace.test.mjs` (test runner do Node, sem dependências): guarda que a Plataforma não volta, que a skill usa as ferramentas do MCP do Life OS e que nenhum token entra no repositório. Rode-o antes de commitar uma mudança na skill, no `.mcp.json` ou nesta documentação.
+
 ## Git Flow
 
-You don't need to create branch for each issue. We will push directly on main after my review.
+Uma branch por issue, com o nome `<tipo>-<numero>` (`docs-52`, `sub-task-49`), e um PR para a `main`; o merge é meu, depois da revisão. Commits semânticos em português, como os do histórico (`docs(professor): …`, `refactor(workspace): …`).
 
-Do not commit after finish a issue. I want to review uncommitted changes and make the commit myself.
+O scratch em `courses/<id>/` é escrito pelo Professor durante as sessões de estudo; commitá-lo é decisão minha, não do agente.
+
+Nunca commite um token do MCP: ele vem só de `LIFE_OS_MCP_TOKEN`.

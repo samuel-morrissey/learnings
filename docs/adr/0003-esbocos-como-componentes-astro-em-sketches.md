@@ -4,6 +4,10 @@ status: accepted (refina ADR 0002, refinada pela ADR 0005)
 
 # Esboços como Componentes Astro em `src/sketches/`, promovidos ao Catálogo
 
+> **Refinada pela [ADR 0007](./0007-learnings-vira-o-workspace-do-professor.md):** o Esboço é um componente React em
+> `src/contexts/aprendizado/sketches/` do Life OS, construído pelo
+> Desenvolvedor de lá. O que define um Esboço continua valendo.
+
 > **Refinada pela [ADR 0005](./0005-aulas-no-firestore-com-astro-ssr.md):** com o
 > render em runtime, o Esboço passa de `.astro` para **Preact**, e o
 > `registry.ts` morre — o binding Aula→Esboço vira o campo `esbocos[]` no doc da

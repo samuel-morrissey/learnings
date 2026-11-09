@@ -1,5 +1,10 @@
 # Fluxo interativo atual da TUI (Professor ↔ aluno)
 
+> **Retrato anterior à fusão com o Life OS** ([ADR 0007](../adr/0007-learnings-vira-o-workspace-do-professor.md)):
+> as ferramentas e os guias citados aqui (`write_aula`, `docs/catalog-guide.md`,
+> `docs/frontmatter-guide.md`) viraram `write_lesson` e `get_catalog` do MCP do
+> Life OS. O fluxo da conversa continua o mesmo.
+
 Asset do ticket [#39](https://github.com/samuel-morrissey/learnings/issues/39) do mapa
 [#36](https://github.com/samuel-morrissey/learnings/issues/36). Mapeia em detalhe cada etapa em que o
 Professor conversa com o aluno na TUI hoje, com entradas, saídas e artefatos tocados — insumo para

@@ -4,6 +4,12 @@ status: accepted (traz para o escopo a orquestração adiada pela ADR 0002)
 
 # Professor e Desenvolvedor como skills no repo, com a escotilha orquestrada
 
+> **Refinada pela [ADR 0007](./0007-learnings-vira-o-workspace-do-professor.md):** o Professor continua skill deste repositório, mas lê e
+> escreve as Aulas pelo MCP do Life OS e tira o Catálogo e o Frontmatter de
+> `get_catalog`, não de `docs/`. O Desenvolvedor (`/professor-developer`) foi
+> para o Life OS, e a Solicitação de Componente virou issue de lá. A escotilha
+> orquestrada e o seam de conhecimento seguem valendo.
+
 O **Professor** e o **Desenvolvedor** passam a viver como skills versionadas no
 próprio repo, em `.claude/skills/`: `/professor` (a evolução da skill global
 `teach-v2`, lineage "teach-v3") e `/professor-developer`. São um **fork** da
